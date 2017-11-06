@@ -11,6 +11,11 @@ namespace Framework.Engine
     public class BaseSignal : IBaseSignal
     {
         /// <summary>
+        /// 信号抬头
+        /// </summary>
+        private string SignalTitle;
+
+        /// <summary>
         /// 循环的信号集
         /// </summary>
         private event Action<IBaseSignal, object[]> m_BaseListener = delegate { };
@@ -97,6 +102,22 @@ namespace Framework.Engine
         public virtual List<Type> GetTypes()
         {
             return new List<Type>();
+        }
+
+        public override bool Equals(object obj)
+        {
+            BaseSignal signal = obj as BaseSignal;
+            return this.SignalTitle.Equals(signal.SignalTitle);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return this.SignalTitle;
         }
     }
 }

@@ -81,6 +81,10 @@
     <Compile Include="Assets\framework\Engine\Signal\BaseSignal.cs" />
     <Compile Include="Assets\framework\Engine\Signal\IBaseSignal.cs" />
     <Compile Include="Assets\framework\Engine\Signal\Signal.cs" />
+    <Compile Include="Assets\framework\Engine\Singleton\BaseMonoSingleton.cs" />
+    <Compile Include="Assets\framework\Engine\Singleton\BaseSingleton.cs" />
+    <Compile Include="Assets\framework\Engine\Singleton\IBaseSingleton.cs" />
+    <Compile Include="Assets\testTemplate\Scripts\TempScripts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

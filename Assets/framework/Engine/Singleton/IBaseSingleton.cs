@@ -10,6 +10,6 @@ namespace Framework.Engine
 {
     public interface IBaseSingleton
     {
-        void Initilize();
+        bool Initilize();
     }
 }

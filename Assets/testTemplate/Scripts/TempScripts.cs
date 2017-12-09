@@ -13,7 +13,7 @@ public class TempScripts : BaseMonoSingleton<TempScripts>
     private Signal m_Action;
     private Signal<int, float, float, float> m_Action2;
 
-    public override void Initilize()
+    public override bool Initilize()
     {
         base.Initilize();
 
@@ -29,6 +29,13 @@ public class TempScripts : BaseMonoSingleton<TempScripts>
         m_Action2.AddListener((int a, float b, float c, float d) => { Debug.Log(string.Format("{0} = {1} = {2} = {3}", a + 1, b, c, d)); });
         m_Action2.AddListener((int a, float b, float c, float d) => { Debug.Log(string.Format("{0} = {1} = {2} = {3}", a + 2, b, c, d)); });
         m_Action2.AddListener((int a, float b, float c, float d) => { Debug.Log(string.Format("{0} = {1} = {2} = {3}", a + 3, b, c, d)); });
+
+        return true;
+    }
+
+    private void Test(params object[] arms)
+    {
+
     }
 
     private void Update()

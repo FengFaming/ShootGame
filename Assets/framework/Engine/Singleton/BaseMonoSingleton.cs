@@ -11,7 +11,7 @@ namespace Framework.Engine
 {
     public class BaseMonoSingleton : MonoBehaviour, IBaseSingleton
     {
-        private static BaseMonoSingleton m_Instance;
+        protected static BaseMonoSingleton m_Instance;
         public static BaseMonoSingleton Instance { get { return m_Instance; } }
 
         internal void Awake()
@@ -19,15 +19,21 @@ namespace Framework.Engine
             Initilize();
         }
 
-        public virtual void Initilize()
+        public virtual bool Initilize()
         {
+            if (this.gameObject == null)
+            {
+                return false;
+            }
+
             m_Instance = this;
+            return true;
         }
     }
 
     public class BaseMonoSingleton<T> : MonoBehaviour, IBaseSingleton where T : MonoBehaviour
     {
-        private static T m_Instance;
+        protected static T m_Instance;
         public static T Instance { get { return m_Instance; } }
 
         internal void Awake()
@@ -35,9 +41,15 @@ namespace Framework.Engine
             Initilize();
         }
 
-        public virtual void Initilize()
+        public virtual bool Initilize()
         {
+            if (this.gameObject == null)
+            {
+                return false;
+            }
+
             m_Instance = this as T;
+            return true;
         }
     }
 }

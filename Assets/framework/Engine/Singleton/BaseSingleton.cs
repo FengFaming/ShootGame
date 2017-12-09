@@ -19,9 +19,9 @@ namespace Framework.Engine
             Initilize();
         }
 
-        public virtual void Initilize()
+        public virtual bool Initilize()
         {
-
+            return true;
         }
     }
 
@@ -41,9 +41,9 @@ namespace Framework.Engine
             m_Instance = t;
         }
 
-        public virtual void Initilize()
+        public virtual bool Initilize()
         {
-
+            return true;
         }
     }
 }

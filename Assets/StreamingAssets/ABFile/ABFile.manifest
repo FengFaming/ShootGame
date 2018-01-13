@@ -1,0 +1,11 @@
+ManifestFileVersion: 0
+CRC: 924769539
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: shareab
+      Dependencies: {}
+    Info_1:
+      Name: avitar
+      Dependencies:
+        Dependency_0: shareab

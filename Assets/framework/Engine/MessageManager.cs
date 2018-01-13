@@ -9,6 +9,12 @@ using UnityEngine;
 
 namespace Framework.Engine
 {
+    public class MessageKey
+    {
+        public static readonly string SINGLETON_ADD_MANAGER = "SINGLETON_ADD_MANAGER";
+        public static readonly string SINGLETON_REMOVE_MANAGER = "SINGLETON_REMOVE_MANAGER";
+    }
+
     public class MessageManager : BaseMonoSingleton<MessageManager>
     {
         public delegate void OnSendMessageCallBack(params object[] arms);

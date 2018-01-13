@@ -78,15 +78,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\framework\Engine\Art\ArtManager.cs" />
+    <Compile Include="Assets\framework\Engine\Art\ArtManagerLogic.cs" />
+    <Compile Include="Assets\framework\Engine\Art\ConfigurationManager.cs" />
+    <Compile Include="Assets\framework\Engine\Art\FileThread.cs" />
+    <Compile Include="Assets\framework\Engine\Art\XMLBase.cs" />
     <Compile Include="Assets\framework\Engine\MessageManager.cs" />
     <Compile Include="Assets\framework\Engine\Signal\BaseSignal.cs" />
     <Compile Include="Assets\framework\Engine\Signal\IBaseSignal.cs" />
     <Compile Include="Assets\framework\Engine\Signal\Signal.cs" />
     <Compile Include="Assets\framework\Engine\Singleton\BaseMonoSingleton.cs" />
-    <Compile Include="Assets\framework\Engine\Singleton\BaseSingleton.cs" />
-    <Compile Include="Assets\framework\Engine\Singleton\BaseSingletonManager.cs" />
     <Compile Include="Assets\framework\Engine\Singleton\IBaseSingleton.cs" />
+    <Compile Include="Assets\framework\Engine\Singleton\Singleton.cs" />
+    <Compile Include="Assets\framework\Engine\SocketWork\NetSocketManager.cs" />
+    <Compile Include="Assets\framework\Engine\SocketWork\ResponseBase.cs" />
+    <Compile Include="Assets\framework\Engine\SocketWork\ResponseManager.cs" />
+    <Compile Include="Assets\framework\Engine\UI\UIManager.cs" />
+    <Compile Include="Assets\framework\Engine\UI\UIModule_Priv.cs" />
+    <Compile Include="Assets\testTemplate\Scripts\FileResponse.cs" />
+    <Compile Include="Assets\testTemplate\Scripts\LoadResponse.cs" />
     <Compile Include="Assets\testTemplate\Scripts\TempScripts.cs" />
+    <Compile Include="Assets\testTemplate\Scripts\Test.cs" />
+    <Compile Include="Assets\testTemplate\Scripts\TestResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

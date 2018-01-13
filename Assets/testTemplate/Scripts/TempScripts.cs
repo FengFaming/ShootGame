@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Framework.Engine;
+using Framework.Engine.NetWork;
+using Framework.Engine.Art;
 
 public class TempScripts : BaseMonoSingleton<TempScripts>
 {
@@ -33,18 +35,53 @@ public class TempScripts : BaseMonoSingleton<TempScripts>
         return true;
     }
 
+    private void Start()
+    {
+        NetSocketManager.Instance.StartNetSocket();
+
+        ResponseManager.Instance.AddResponse(new LoadResponse("RequestLogin"));
+        ResponseManager.Instance.AddResponse(new TestResponse("Test"));
+        ResponseManager.Instance.AddResponse(new FileResponse("File"));
+    }
+
     private void Test(params object[] arms)
     {
-
+        GameObject go = ArtManager.Instance.LoadAvitar("Cube");
+        if (go != null)
+        {
+            GameObject test = GameObject.Instantiate(go);
+            test.gameObject.name = "Cube";
+            test.gameObject.transform.position = new Vector3(0, 0, -6);
+            test.gameObject.transform.eulerAngles = Vector3.zero;
+            test.gameObject.transform.localScale = Vector3.one;
+        }
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            m_Action.Dispath();
+            //m_Action.Dispath();
 
-            m_Action2.Dispath(1, 2, 3, 4);
+            //m_Action2.Dispath(1, 2, 3, 4);
+
+            //Test();
+            ResponseManager.Instance.GetResponse<FileResponse>("File").PressMessage("");
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            ResponseManager.Instance.GetResponse<LoadResponse>("RequestLogin").PressMessage("a");
+        }
+
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            ResponseManager.Instance.GetResponse<TestResponse>("Test").PressMessage("cccccccc");
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            NetSocketManager.Instance.CloseClient();
         }
     }
 }

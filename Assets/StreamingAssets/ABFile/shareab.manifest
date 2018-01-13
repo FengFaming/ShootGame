@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 1526867829
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: c3e1a54d0377ae013dadbf2b88da994c
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0b04a37228feb7b9c312fb0cfbaa19c4
+HashAppended: 0
+ClassTypes:
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+Assets:
+- Assets/Art/502A0002.jpg
+- Assets/Art/Test.mat
+- Assets/Art/CubeMat.mat
+Dependencies: []

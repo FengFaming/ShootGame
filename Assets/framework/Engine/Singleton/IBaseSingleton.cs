@@ -8,8 +8,9 @@ using System.Collections.Generic;
 
 namespace Framework.Engine
 {
-    public interface IBaseSingleton
+    interface IBaseSingleton
     {
         bool Initilize();
+        void OnDestroy();
     }
 }

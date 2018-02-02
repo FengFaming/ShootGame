@@ -36,6 +36,9 @@ namespace Framework.Engine
         /// 正常面板、弹框
         /// </summary>
         private static Dictionary<Type, UIModule> m_UiModuleDic;
+        /// <summary>
+        /// 紧急弹框
+        /// </summary>
         private static Dictionary<Type, UIModule> m_UiBlockingDic;
 
         /// <summary>
@@ -56,9 +59,8 @@ namespace Framework.Engine
         private Transform m_BlockView;
 
         [SerializeField]
-        private Color m_CloseColor = new Color(255, 255, 255, 0);
+        private Color m_CloseColor;
 
-        [SerializeField]
         private string m_PrefabPath = "UI/";
 
         private GameObject m_CloseView;
@@ -120,27 +122,15 @@ namespace Framework.Engine
         public override void OnDestroy()
         {
             base.OnDestroy();
-        }
 
-        private void SetCloseOnClick(bool close)
-        {
-            if (close)
-            {
-                m_CloseCount += 1;
-                m_CloseView.SetActive(true);
-            }
-            else
-            {
-                m_CloseCount -= 1;
-                if (m_CloseCount <= 0)
-                {
-                    m_CloseCount = 0;
-                    m_CloseView.SetActive(false);
-                }
-            }
+            m_UIDataDic.Clear();
+            m_UiBlockingDic.Clear();
+            m_UiModuleDic.Clear();
+            m_ShowType.Clear();
         }
 
         #region Inface
+        #region 添加数据
         public void AddModuleData(UIModuleData data)
         {
             if (!m_UIDataDic.ContainsKey(data.m_Type))
@@ -156,18 +146,20 @@ namespace Framework.Engine
                 AddModuleData(datas[index]);
             }
         }
+        #endregion
 
+        #region 显示UI
         public void ShowUI(Type type, params object[] arms)
         {
-            ShowUI(type, UIModuleLayer.None, arms);
+            ShowUIWithLayer(type, UIModuleLayer.None, arms);
         }
 
-        public void ShowUI(Type type, UIModuleLayer layer, params object[] arms)
+        public void ShowUIWithLayer(Type type, UIModuleLayer layer, params object[] arms)
         {
-            ShowUI(type, false, layer);
+            ShowUIWithLayer(type, false, layer, arms);
         }
 
-        public void ShowUI(Type type, bool isOverLayer, UIModuleLayer layer, params object[] arms)
+        public void ShowUIWithLayer(Type type, bool isOverLayer, UIModuleLayer layer, params object[] arms)
         {
             UIModuleData data;
             if (!m_UIDataDic.TryGetValue(type, out data))
@@ -202,11 +194,171 @@ namespace Framework.Engine
 
             module.OnShow(type, isOverLayer, layer, arms);
             SetParent(module);
+            RectTransform t = module.gameObject.GetComponent<RectTransform>();
+            t.localPosition = Vector3.zero;
+            t.sizeDelta = Vector2.zero;
+            t.localScale = Vector3.one;
+
             CloseOrHideOtherModule(module, data);
         }
         #endregion
 
+        /// <summary>
+        /// 获取UI面板
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public T GetModule<T>(Type type) where T : UIModule
+        {
+            T t = default(T);
+            if (m_ShowType.Contains(type))
+            {
+                if (m_UiModuleDic.ContainsKey(type))
+                {
+                    t = m_UiModuleDic[type] as T;
+                }
+                else if (m_UiBlockingDic.ContainsKey(type))
+                {
+                    t = m_UiBlockingDic[type] as T;
+                }
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// 关闭面板
+        /// </summary>
+        /// <param name="type"></param>
+        public void CloseModule(Type type)
+        {
+            UIModuleData data;
+            if (m_UIDataDic.TryGetValue(type, out data))
+            {
+                List<Type> closes = new List<Type>();
+                closes.Add(type);
+                closes.AddRange(GetLinkType(type));
+
+                //List<UIModule> modules = new List<UIModule>();
+                for (int index = 0; index < closes.Count; index++)
+                {
+                    UIModule module;
+                    if (m_UiBlockingDic.TryGetValue(closes[index], out module))
+                    {
+                        //modules.Add(module);
+                        m_UiBlockingDic.Remove(closes[index]);
+                    }
+                    else if (m_UiModuleDic.TryGetValue(closes[index], out module))
+                    {
+                        //modules.Add(module);
+                        m_UiModuleDic.Remove(closes[index]);
+                    }
+
+                    if (m_ShowType.Contains(closes[index]))
+                    {
+                        m_ShowType.Remove(closes[index]);
+                    }
+
+                    if (module != null)
+                    {
+                        ///如果是紧急面板,那么关闭遮罩
+                        if (module.ShowLayer == UIModuleLayer.Black)
+                        {
+                            SetCloseOnClick(false);
+                        }
+
+                        GameObject.Destroy(module.gameObject);
+                    }
+                    else
+                    {
+                        Debug.LogWarning(string.Format("the module type【{0}】 is not showing.", closes[index]));
+                    }
+                }
+
+                ///因为关闭面板，所以重新打开界面
+                ShowBack();
+            }
+            else
+            {
+                Debug.LogWarning(string.Format("the type【{0}】 is not module data.", type));
+            }
+        }
+        #endregion
+
         #region Private
+        private void SetCloseOnClick(bool show)
+        {
+            if (show)
+            {
+                m_CloseCount += 1;
+                m_CloseView.SetActive(true);
+            }
+            else
+            {
+                m_CloseCount -= 1;
+                if (m_CloseCount <= 0)
+                {
+                    m_CloseCount = 0;
+                    m_CloseView.SetActive(false);
+                }
+            }
+        }
+
+        #region 关闭相关的
+        private List<Type> GetLinkType(Type type)
+        {
+            List<Type> tps = new List<Type>();
+
+            for (int index = 0; index < m_ShowType.Count; index++)
+            {
+                UIModuleData data;
+                if (m_UIDataDic.TryGetValue(m_ShowType[index], out data))
+                {
+                    if (data.m_Linkeds != null)
+                    {
+                        foreach (Type item in data.m_Linkeds)
+                        {
+                            if (item.Equals(type))
+                            {
+                                tps.Add(data.m_Type);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return tps;
+        }
+
+        private void ShowBack()
+        {
+            for (int index = 0; index < m_ShowType.Count; index++)
+            {
+                UIModule module;
+                if (m_UiBlockingDic.TryGetValue(m_ShowType[index], out module))
+                {
+
+                }
+                else if (m_UiModuleDic.TryGetValue(m_ShowType[index], out module))
+                {
+
+                }
+
+                if (module != null)
+                {
+                    ShowUI(m_ShowType[index]);
+                    if ((module.ShowLayer & (UIModuleLayer.Black | UIModuleLayer.Pnl)) != 0)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region 打开相关的
         private void OpenLinkeds(UIModuleData data)
         {
             if (data.m_Linkeds != null)
@@ -221,8 +373,11 @@ namespace Framework.Engine
         private void CloseOrHideOtherModule(UIModule module, UIModuleData data)
         {
             List<Type> links = GetLinkTypes(data);
+            links.Add(data.m_Type);
+
             List<Type> ignoers = GetIgnoers(data);
 
+            List<UIModule> closes = new List<UIModule>();
             if (module.ShowOverLayer)
             {
                 for (int index = 0; index < m_ShowType.Count; index++)
@@ -232,9 +387,30 @@ namespace Framework.Engine
                     {
                         if (!(links.Contains(ui.m_Type) || ignoers.Contains(ui.m_Type)))
                         {
-                            ManagerCloseUI(ui);
+                            if (!closes.Contains(ui))
+                            {
+                                closes.Add(ui);
+                            }
                         }
                     }
+                    else if (m_UiBlockingDic.TryGetValue(m_ShowType[index], out ui))
+                    {
+                        if (!(links.Contains(ui.m_Type) || ignoers.Contains(ui.m_Type)))
+                        {
+                            if (!closes.Contains(ui))
+                            {
+                                closes.Add(ui);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (closes.Count > 0)
+            {
+                for (int index = 0; index < closes.Count; index++)
+                {
+                    ManagerCloseUI(closes[index]);
                 }
             }
         }
@@ -279,14 +455,37 @@ namespace Framework.Engine
 
         private void ManagerCloseUI(UIModule module)
         {
+            //if (m_UiModuleDic.ContainsKey(module.m_Type))
+            //{
+            //    m_UiModuleDic.Remove(module.m_Type);
+            //}
+            //else if (m_UiBlockingDic.ContainsKey(module.m_Type))
+            //{
+            //    m_UiBlockingDic.Remove(module.m_Type);
+            //    SetCloseOnClick(false);
+            //}
 
+            //if (m_ShowType.Contains(module.m_Type))
+            //{
+            //    m_ShowType.Remove(module.m_Type);
+            //}
+
+            if (module != null)
+            {
+                module.CloseSelf();
+            }
+            //GameObject.Destroy(module.gameObject);
         }
 
         private string GetPrefabPath(Type type)
         {
             string path = type.ToString();
 
-            path = path.Substring(path.LastIndexOf("."));
+            if (path.IndexOf(".") >= 0)
+            {
+                path = path.Substring(path.LastIndexOf("."));
+            }
+
             path = m_PrefabPath + path;
 
             return path;
@@ -297,32 +496,62 @@ namespace Framework.Engine
             switch (module.ShowLayer)
             {
                 case UIModuleLayer.Black:
-                    module.gameObject.transform.parent = m_BlockView;
+                    module.gameObject.transform.SetParent(m_BlockView);
                     module.gameObject.transform.SetAsLastSibling();
-                    m_UiBlockingDic.Add(module.m_Type, module);
+                    if (m_UiBlockingDic.ContainsKey(module.m_Type))
+                    {
+                        m_UiBlockingDic[module.m_Type] = module;
+                    }
+                    else
+                    {
+                        m_UiBlockingDic.Add(module.m_Type, module);
+                    }
+
                     SetCloseOnClick(true);
-                    m_ShowType.Insert(0, module.m_Type);
                     break;
                 case UIModuleLayer.Dlg:
                 case UIModuleLayer.Pnl:
                 case UIModuleLayer.None:
-                    module.gameObject.transform.parent = m_PnlView;
+                    module.gameObject.transform.SetParent(m_PnlView);
                     module.gameObject.transform.SetAsLastSibling();
-                    m_UiModuleDic.Add(module.m_Type, module);
-                    m_ShowType.Insert(0, module.m_Type);
+                    if (!m_UiModuleDic.ContainsKey(module.m_Type))
+                    {
+                        m_UiModuleDic.Add(module.m_Type, module);
+                    }
+                    else
+                    {
+                        m_UiModuleDic[module.m_Type] = module;
+                    }
                     break;
                 case UIModuleLayer.Pool:
-                    module.gameObject.transform.parent = m_PoolView;
+                    module.gameObject.transform.SetParent(m_PoolView);
                     module.gameObject.transform.SetAsLastSibling();
                     break;
                 case UIModuleLayer.Top:
-                    module.gameObject.transform.parent = m_TopView;
+                    module.gameObject.transform.SetParent(m_TopView);
                     module.gameObject.transform.SetAsLastSibling();
-                    m_UiModuleDic.Add(module.m_Type, module);
-                    m_ShowType.Insert(0, module.m_Type);
+                    if (m_UiModuleDic.ContainsKey(module.m_Type))
+                    {
+                        m_UiModuleDic[module.m_Type] = module;
+                    }
+                    else
+                    {
+                        m_UiModuleDic.Add(module.m_Type, module);
+                    }
                     break;
             }
+
+            if (module.ShowLayer != UIModuleLayer.Pool)
+            {
+                if (m_ShowType.Contains(module.m_Type))
+                {
+                    m_ShowType.Remove(module.m_Type);
+                }
+
+                m_ShowType.Insert(0, module.m_Type);
+            }
         }
+        #endregion
         #endregion
     }
 }

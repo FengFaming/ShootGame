@@ -62,6 +62,7 @@ public class CreateFile : EditorWindow
             sw.WriteLine("* */");
             sw.WriteLine();
             sw.WriteLine("using System;");
+            sw.WriteLine("using System.Collections;");
             sw.WriteLine("using System.Collections.Generic;");
             sw.WriteLine();
             sw.WriteLine(string.Format("public class {0}", fileName));
@@ -72,6 +73,8 @@ public class CreateFile : EditorWindow
             fs.Close();
 
             this.Repaint();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
             this.Close();
         }
 

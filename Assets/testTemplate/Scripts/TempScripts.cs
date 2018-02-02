@@ -9,6 +9,7 @@ using UnityEngine;
 using Framework.Engine;
 using Framework.Engine.NetWork;
 using Framework.Engine.Art;
+using System.IO;
 
 public class TempScripts : BaseMonoSingleton<TempScripts>
 {

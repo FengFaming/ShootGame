@@ -41,8 +41,7 @@ namespace Framework.Engine.Art
             else
             {
                 StartLoadAvitar();
-
-                return LoadAvitar(name);
+                return null;
             }
         }
 

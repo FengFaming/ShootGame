@@ -46,13 +46,31 @@ namespace Framework.Engine
         private bool m_ShowOverLayer;
         public bool ShowOverLayer { get { return m_ShowOverLayer; } }
 
+        /// <summary>
+        /// 是否已经显示过
+        /// </summary>
+        private bool m_IsShowed;
+
         public bool OnShow(Type type, bool isOver, UIModuleLayer layer, params object[] arms)
         {
-            m_Type = type;
-            m_ShowLayer = layer == UIModuleLayer.None ? m_Layer : layer;
-            m_ShowOverLayer = m_IsOverLayer & isOver;
+            if (!m_IsShowed)
+            {
+                m_Type = type;
+                m_ShowLayer = layer == UIModuleLayer.None ? m_Layer : layer;
+                m_ShowOverLayer = m_IsOverLayer & isOver;
 
-            return true;
+                m_IsShowed = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void CloseSelf()
+        {
+            UIManager.Instance.CloseModule(m_Type);
         }
     }
 }

@@ -114,8 +114,15 @@ namespace Framework.Engine.NetWork
         public void CloseClient()
         {
             Debug.Log("Close");
-            m_ClientSocket.Close();
-            m_ClientThread.Abort();
+            if (m_ClientSocket != null)
+            {
+                m_ClientSocket.Close();
+            }
+
+            if (m_ClientThread != null)
+            {
+                m_ClientThread.Abort();
+            }
         }
     }
 }

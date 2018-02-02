@@ -28,7 +28,7 @@ namespace Framework.Engine.Art
             if (!base.Initilize())
                 return false;
 
-            m_IsLoad = false;
+            m_IsLoad = true;
             StartLoadSareab();
 
             return true;
@@ -42,30 +42,25 @@ namespace Framework.Engine.Art
             //    StartCoroutine("LoadSareab");
             //}
 
-            AssetBundle manifest = AssetBundle.LoadFromFile(string.Format("{0}/{1}", Application.streamingAssetsPath, "ABFile/shareab"));
-            if (manifest != null)
-            {
-                m_ShareabAB = manifest;
-                Debug.Log(m_ShareabAB);
-                AssetBundleManifest m = manifest.LoadAsset<AssetBundleManifest>("shareabManifest");
-                Debug.Log(m);
-                //string[] depends = m.GetAllDependencies();
-            }
+            //AssetBundle manifest = AssetBundle.LoadFromFile(string.Format("{0}/{1}", Application.streamingAssetsPath, "ABFile/shareab"));
+            //if (manifest != null)
+            //{
+            //    m_ShareabAB = manifest;
+            //    AssetBundleManifest m = manifest.LoadAsset<AssetBundleManifest>("shareabManifest");
+            //}
+
+            //StartCoroutine(LoadSareab());
+            Debug.Log(m_ShareabAB);
+            //StartCoroutine(LoadUIIcon());
+            //StartCoroutine(LoadSprite());
+            StartCoroutine(LoadAvitar());
         }
 
         private void StartLoadAvitar()
         {
-            //m_IsLoad = true;
-            //if (m_IsLoad)
-            //{
-            //    StartCoroutine("LoadAvitar");
-            //}
-
-            AssetBundle avitar = AssetBundle.LoadFromFile(GetABPath(1));
-            if (avitar != null)
+            if (m_IsLoad)
             {
-                //AssetBundleManifest mainfest = avitar.LoadAsset<AssetBundleManifest>("avitar");
-                m_AvitarAB = avitar;
+                StartCoroutine(LoadAvitar());
             }
         }
 
@@ -90,12 +85,20 @@ namespace Framework.Engine.Art
 
         private IEnumerator LoadUIIcon()
         {
-            //m_UIIconAB = AssetBundle.LoadFromFile(GetABPath(3));
             m_IsLoad = false;
-            WWW www = new WWW(GetABPath(3));
-            yield return www;
 
-            m_UIIconAB = www.assetBundle;
+            AssetBundleCreateRequest avitar = AssetBundle.LoadFromFileAsync(GetABPath(3));
+            yield return avitar;
+            while (!avitar.isDone)
+            {
+                yield return null;
+            }
+
+            if (avitar != null)
+            {
+                m_UIIconAB = avitar.assetBundle;
+            }
+
             m_IsLoad = true;
             yield return m_IsLoad;
         }
@@ -103,11 +106,19 @@ namespace Framework.Engine.Art
         private IEnumerator LoadSareab()
         {
             m_IsLoad = false;
-            //WWW www = new WWW(GetABPath(4));
-            WWW www = WWW.LoadFromCacheOrDownload(GetABPath(4), 0);
-            yield return www;
 
-            m_ShareabAB = www.assetBundle;
+            AssetBundleCreateRequest avitar = AssetBundle.LoadFromFileAsync(GetABPath(4));
+            yield return avitar;
+            while (!avitar.isDone)
+            {
+                yield return null;
+            }
+
+            if (avitar != null)
+            {
+                m_ShareabAB = avitar.assetBundle;
+            }
+
             m_IsLoad = true;
             yield return m_IsLoad;
         }
@@ -115,10 +126,19 @@ namespace Framework.Engine.Art
         private IEnumerator LoadAvitar()
         {
             m_IsLoad = false;
-            WWW www = WWW.LoadFromCacheOrDownload(GetABPath(1), 0);
-            yield return www;
 
-            m_AvitarAB = www.assetBundle;
+            AssetBundleCreateRequest avitar = AssetBundle.LoadFromFileAsync(GetABPath(1));
+            yield return avitar;
+            while (!avitar.isDone)
+            {
+                yield return null;
+            }
+
+            if (avitar != null)
+            {
+                m_AvitarAB = avitar.assetBundle;
+            }
+
             m_IsLoad = true;
             yield return m_IsLoad;
         }
@@ -126,12 +146,31 @@ namespace Framework.Engine.Art
         private IEnumerator LoadSprite()
         {
             m_IsLoad = false;
-            WWW www = new WWW(GetABPath(2));
-            yield return www;
 
-            m_SpriteAB = www.assetBundle;
+            AssetBundleCreateRequest avitar = AssetBundle.LoadFromFileAsync(GetABPath(2));
+            yield return avitar;
+            while (!avitar.isDone)
+            {
+                yield return null;
+            }
+
+            if (avitar != null)
+            {
+                m_SpriteAB = avitar.assetBundle;
+            }
+
             m_IsLoad = true;
             yield return m_IsLoad;
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            if (m_AvitarAB != null)
+            {
+                m_AvitarAB.Unload(true);
+            }
         }
 
         private string GetABPath(int type)

@@ -268,72 +268,34 @@ namespace Game.Engine
 				}
 				else
 				{
-					string lp = GetABPath(path);
-					WWW www = new WWW(lp);
-					yield return www;
-					while (!www.isDone)
-					{
-						yield return null;
-					}
-
-					if (www.assetBundle != null)
-					{
-						ABInfo ab = new ABInfo();
-						ab.m_ABName = info.m_LoadName;
-						ab.m_IsDontClear = false;
-						ab.m_LastUseTime = (long)Time.time;
-						ab.m_TargetAB = www.assetBundle;
-						ab.m_UseCount = 0;
-						m_AllABInfoDic.Add(info.m_LoadName, ab);
-					}
-
 					if (m_AllABInfoDic.ContainsKey(info.m_LoadName))
 					{
-						if (info.m_LoadCB != null && info.m_LoadCB.Count > 0)
+						InitGameObject(info);
+					}
+					else
+					{
+						string lp = GetABPath(path);
+						WWW www = new WWW(lp);
+						yield return www;
+						while (!www.isDone)
 						{
-							info.m_LoadCB.Sort((IResObjectCallBack a, IResObjectCallBack b) =>
-							{
-								return a.LoadCallbackPriority() - b.LoadCallbackPriority();
-							});
+							yield return null;
+						}
 
-							for (int index = 0; index < info.m_LoadCB.Count; index++)
-							{
-								object oj = null;
-								switch (info.m_LoadType)
-								{
-									case ResObjectType.Aduio:
-										oj = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<AudioClip>(info.m_LoadName);
-										break;
-									case ResObjectType.Effect:
-										GameObject ef = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = GameObject.Instantiate(ef);
-										break;
-									case ResObjectType.GameObject:
-										GameObject go = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = GameObject.Instantiate(go);
-										break;
-									case ResObjectType.Icon:
-										GameObject ic = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = ic.GetComponent<Image>().mainTexture;
-										break;
-									case ResObjectType.Material:
-										GameObject mt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = mt.GetComponent<MeshRenderer>().material;
-										break;
-									case ResObjectType.Move:
-										break;
-									case ResObjectType.Texture:
-										GameObject tt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = tt.GetComponent<MeshRenderer>().material.mainTexture;
-										break;
-									case ResObjectType.UIPrefab:
-										GameObject up = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
-										oj = GameObject.Instantiate(up);
-										break;
-								}
+						if (www.assetBundle != null)
+						{
+							ABInfo ab = new ABInfo();
+							ab.m_ABName = info.m_LoadName;
+							ab.m_IsDontClear = false;
+							ab.m_LastUseTime = (long)Time.time;
+							ab.m_TargetAB = www.assetBundle;
+							ab.m_UseCount = 0;
+							m_AllABInfoDic.Add(info.m_LoadName, ab);
+						}
 
-								info.m_LoadCB[index].HandleLoadCallBack(oj);
-							}
+						if (m_AllABInfoDic.ContainsKey(info.m_LoadName))
+						{
+							InitGameObject(info);
 						}
 					}
 				}
@@ -342,6 +304,60 @@ namespace Game.Engine
 			}
 
 			m_IsLoad = false;
+		}
+
+		/// <summary>
+		/// 初始化对象内容
+		/// </summary>
+		/// <param name="info"></param>
+		private void InitGameObject(LoadResObjectInfo info)
+		{
+			if (info.m_LoadCB != null && info.m_LoadCB.Count > 0)
+			{
+				info.m_LoadCB.Sort((IResObjectCallBack a, IResObjectCallBack b) =>
+				{
+					return a.LoadCallbackPriority() - b.LoadCallbackPriority();
+				});
+
+				for (int index = 0; index < info.m_LoadCB.Count; index++)
+				{
+					object oj = null;
+					switch (info.m_LoadType)
+					{
+						case ResObjectType.Aduio:
+							oj = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<AudioClip>(info.m_LoadName);
+							break;
+						case ResObjectType.Effect:
+							GameObject ef = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = GameObject.Instantiate(ef);
+							break;
+						case ResObjectType.GameObject:
+							GameObject go = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = GameObject.Instantiate(go);
+							break;
+						case ResObjectType.Icon:
+							GameObject ic = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = ic.GetComponent<Image>().mainTexture;
+							break;
+						case ResObjectType.Material:
+							GameObject mt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = mt.GetComponent<MeshRenderer>().material;
+							break;
+						case ResObjectType.Move:
+							break;
+						case ResObjectType.Texture:
+							GameObject tt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = tt.GetComponent<MeshRenderer>().material.mainTexture;
+							break;
+						case ResObjectType.UIPrefab:
+							GameObject up = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
+							oj = GameObject.Instantiate(up);
+							break;
+					}
+
+					info.m_LoadCB[index].HandleLoadCallBack(oj);
+				}
+			}
 		}
 	}
 }

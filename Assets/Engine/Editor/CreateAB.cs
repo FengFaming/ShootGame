@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Security.Cryptography;
 
 public class CreateAB : EditorWindow
 {
@@ -22,6 +23,22 @@ public class CreateAB : EditorWindow
 
 	private float curProgress = 0;
 	private string curRootAsset = "";
+
+	/// <summary>
+	/// 当前版本号
+	/// </summary>
+	private string m_BuildVersion = "0.0.0.1";
+
+	/// <summary>
+	/// 路径保存
+	/// </summary>
+	private string m_SaveFilePath;
+
+	/// <summary>
+	/// 上一个版本号
+	/// </summary>
+	private string m_LastVersion;
+	private string m_LastSavePath;
 
 	/// <summary>
 	/// 设置打包力度
@@ -64,6 +81,9 @@ public class CreateAB : EditorWindow
 		GUILayout.Label(str);
 
 		m_BuildPiece = int.Parse(EditorGUILayout.TextField("打包粒度:", m_BuildPiece.ToString()));
+		m_BuildVersion = EditorGUILayout.TextField("版本号", m_BuildVersion);
+		CalSavePath();
+		CalLastVersionPath();
 
 		if (GUILayout.Button("清理依赖关系", GUILayout.Height(20)))
 		{
@@ -105,12 +125,147 @@ public class CreateAB : EditorWindow
 			}
 		}
 
+		if (GUILayout.Button("分析hash数据", GUILayout.Height(30)))
+		{
+			CalHashData();
+		}
+
 		if (GUILayout.Button("Editor测试", GUILayout.Height(30)))
 		{
 			CopyFile();
 		}
 	}
 
+	/// <summary>
+	/// 部分文件去除版本号
+	/// </summary>
+	private void ExitFileVersion()
+	{
+		string ab = m_SaveFilePath + "/AB" + m_BuildVersion;
+		string abm = ab + ".manifest";
+		string ab1 = m_SaveFilePath + "/AB";
+		string abm1 = ab1 + ".manifest";
+		File.Move(ab, ab1);
+		File.Move(abm, abm1);
+	}
+
+	/// <summary>
+	/// 分析hash数据
+	/// </summary>
+	private void CalHashData()
+	{
+		string sf = m_SaveFilePath + "/HashTab";
+		if (File.Exists(sf))
+		{
+			File.Delete(sf);
+		}
+
+		DirectoryInfo fdir = new DirectoryInfo(m_SaveFilePath);
+		FileInfo[] file = fdir.GetFiles();
+
+		FileStream sffs = new FileStream(sf, FileMode.CreateNew);
+		StreamWriter sw = new StreamWriter(sffs);
+
+		HashAlgorithm hash = HashAlgorithm.Create();
+		for (int index = 0; index < file.Length; index++)
+		{
+			string path = m_SaveFilePath + "/" + file[index].Name;
+			FileStream fs = new FileStream(path, FileMode.Open);
+			byte[] hx = hash.ComputeHash(fs);
+			string hs = BitConverter.ToString(hx);
+			fs.Close();
+			sw.WriteLine(file[index].Name + " " + hs);
+		}
+
+		sw.Close();
+		sffs.Close();
+
+		EditorUtility.OpenWithDefaultApp(m_SaveFilePath);
+	}
+
+	/// <summary>
+	/// 计算上一个版本得路径
+	/// </summary>
+	private void CalLastVersionPath()
+	{
+		string[] vs = m_BuildVersion.Split('.');
+		int i1 = int.Parse(vs[0]);
+		int i2 = int.Parse(vs[1]);
+		int i3 = int.Parse(vs[2]);
+		int i4 = int.Parse(vs[3]);
+
+		if (i4 > 0)
+		{
+			i4 = i4 - 1;
+		}
+		else
+		{
+			i4 = 99;
+			if (i3 > 0)
+			{
+				i3 = i3 - 1;
+			}
+			else
+			{
+				i3 = 99;
+				if (i2 > 0)
+				{
+					i2 = i2 - 1;
+				}
+				else
+				{
+					i2 = 99;
+					if (i1 > 0)
+					{
+						i1 = i1 - 1;
+					}
+					else
+					{
+						i1 = i2 = i3 = i4 = 0;
+					}
+				}
+			}
+		}
+
+		if ((i1 + i2 + i3 + i4) == 0)
+		{
+			m_LastSavePath = string.Empty;
+			m_LastVersion = string.Empty;
+		}
+		else
+		{
+			m_LastVersion = string.Format("{0}.{1}.{2}.{3}", i1, i2, i3, i4);
+			string ab = Application.dataPath;
+			ab = ab.Substring(0, ab.Length - ".assets".Length);
+			m_LastSavePath = ab + "/AB" + m_LastVersion + "/";
+		}
+	}
+
+	/// <summary>
+	/// 计算保存路径
+	/// </summary>
+	private void CalSavePath()
+	{
+		if (string.IsNullOrEmpty(m_BuildVersion))
+		{
+			m_BuildVersion = "0.0.0.1";
+		}
+
+		string[] vs = m_BuildVersion.Split('.');
+		if (vs.Length != 4)
+		{
+			m_BuildVersion = "0.0.0.1";
+			vs = m_BuildVersion.Split('.');
+		}
+
+		string ab = Application.dataPath;
+		ab = ab.Substring(0, ab.Length - ".assets".Length);
+		m_SaveFilePath = ab + "/AB" + m_BuildVersion + "/";
+	}
+
+	/// <summary>
+	/// 复制文件
+	/// </summary>
 	private void CopyFile()
 	{
 		string path = Application.persistentDataPath + "/AB/";
@@ -120,15 +275,27 @@ public class CreateAB : EditorWindow
 			f.Create();
 		}
 
-		string ab = Application.dataPath;
-		ab = ab.Substring(0, ab.Length - ".assets".Length);
-		string savepath = ab + "/AB/";
-
-		string[] files = Directory.GetFiles(savepath);
+		string[] files = Directory.GetFiles(m_SaveFilePath);
 		foreach (string f in files)
 		{
 			FileInfo i = new FileInfo(f);
-			File.Copy(f, path + i.Name, true);
+			string save = path + i.Name;
+			if (i.Name == "AB" + m_BuildVersion)
+			{
+				save = path + "AB";
+			}
+
+			if (i.Name == "AB" + m_BuildVersion + ".manifest")
+			{
+				save = path + "AB.manifest";
+			}
+
+			if (i.Name == "HashTab")
+			{
+				break;
+			}
+
+			File.Copy(f, save, true);
 		}
 
 		EditorUtility.OpenWithDefaultApp(path);
@@ -140,19 +307,20 @@ public class CreateAB : EditorWindow
 	/// <param name="target"></param>
 	private void BuildAB(BuildTarget target)
 	{
-		string ab = Application.dataPath;
-		ab = ab.Substring(0, ab.Length - ".assets".Length);
-		string savepath = ab + "/AB/";
-		if (!Directory.Exists(savepath))
+		if (!Directory.Exists(m_SaveFilePath))
 		{
-			DirectoryInfo f = new DirectoryInfo(savepath);
+			DirectoryInfo f = new DirectoryInfo(m_SaveFilePath);
 			f.Create();
 		}
 
-		BuildPipeline.BuildAssetBundles(savepath, BuildAssetBundleOptions.None, target);
+		BuildPipeline.BuildAssetBundles(m_SaveFilePath,
+									BuildAssetBundleOptions.UncompressedAssetBundle |
+									BuildAssetBundleOptions.DeterministicAssetBundle,
+									target);
 		AssetDatabase.Refresh();
 
-		EditorUtility.OpenWithDefaultApp(savepath);
+		ExitFileVersion();
+		EditorUtility.OpenWithDefaultApp(m_SaveFilePath);
 	}
 
 	/// <summary>

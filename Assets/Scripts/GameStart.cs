@@ -12,6 +12,8 @@ using Game.Engine;
 
 public class GameStart : ObjectBase
 {
+	public string m_IDCard = "44022219910116033X";
+
 	private void Start()
 	{
 		ResObjectManager.Instance.InitResManager("AB");
@@ -26,6 +28,12 @@ public class GameStart : ObjectBase
 			cb.m_FinshFunction = Finsh;
 
 			ResObjectManager.Instance.LoadObject("c1", ResObjectType.GameObject, cb);
+		}
+
+		if (Input.GetKeyUp(KeyCode.B))
+		{
+			Debug.Log(EngineTools.Instance.CheckIDCard(m_IDCard));
+			Debug.Log(EngineTools.Instance.CheckIDCardSex(m_IDCard));
 		}
 	}
 

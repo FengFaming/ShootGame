@@ -45,6 +45,8 @@ public class CreateAB : EditorWindow
 	/// </summary>
 	private int m_BuildPiece = 1;
 
+	private bool m_IsBuinded = false;
+
 	[MenuItem("Tools/CreateAB")]
 	private static void Create()
 	{
@@ -87,6 +89,8 @@ public class CreateAB : EditorWindow
 
 		if (GUILayout.Button("清理依赖关系", GUILayout.Height(20)))
 		{
+			FileUtil.DeleteFileOrDirectory(m_SaveFilePath);
+			m_IsBuinded = false;
 			string[] abnames = AssetDatabase.GetAllAssetBundleNames();
 			foreach (string a in abnames)
 			{
@@ -96,6 +100,7 @@ public class CreateAB : EditorWindow
 
 		if (GUILayout.Button("分析依赖关系", GUILayout.Height(30)))
 		{
+			m_IsBuinded = false;
 			SetABNames();
 		}
 
@@ -122,18 +127,102 @@ public class CreateAB : EditorWindow
 				}
 
 				BuildAB(m_BuildTarget);
+				m_IsBuinded = true;
 			}
 		}
 
-		if (GUILayout.Button("分析hash数据", GUILayout.Height(30)))
+		if (m_IsBuinded)
 		{
-			CalHashData();
+			if (GUILayout.Button("去除版本号约束", GUILayout.Height(30)))
+			{
+				ExitFileVersion();
+			}
+
+			if (GUILayout.Button("分析hash数据", GUILayout.Height(30)))
+			{
+				CalHashData();
+			}
+
+			if (!string.IsNullOrEmpty(m_LastVersion) &&
+				Directory.Exists(m_SaveFilePath) &&
+				Directory.Exists(m_LastSavePath))
+			{
+				if (GUILayout.Button("与上一版本分析差异文件", GUILayout.Height(30)))
+				{
+					CheckDiff();
+				}
+			}
+
+			if (GUILayout.Button("Editor测试", GUILayout.Height(30)))
+			{
+				CopyFile();
+			}
+		}
+	}
+
+	/// <summary>
+	/// 分析差异
+	/// </summary>
+	private void CheckDiff()
+	{
+		string hx1 = m_SaveFilePath + "/HashTab";
+		string hx2 = m_LastSavePath + "/HashTab";
+		Dictionary<string, string> hxs2 = new Dictionary<string, string>();
+		List<string> diffs = new List<string>();
+		FileStream fs = new FileStream(hx2, FileMode.Open);
+		StreamReader sr = new StreamReader(fs);
+		string line;
+		while ((line = sr.ReadLine()) != null)
+		{
+			string[] hs = line.Split(' ');
+			hxs2.Add(hs[0], hs[1]);
 		}
 
-		if (GUILayout.Button("Editor测试", GUILayout.Height(30)))
+		sr.Close();
+		fs.Close();
+
+		fs = new FileStream(hx1, FileMode.Open);
+		sr = new StreamReader(fs);
+		string line2;
+		while ((line2 = sr.ReadLine()) != null)
 		{
-			CopyFile();
+			string[] hs = line2.Split(' ');
+			if (hxs2.ContainsKey(hs[0]))
+			{
+				if (hxs2[hs[0]] != hs[1])
+				{
+					diffs.Add(hs[0]);
+				}
+			}
+			else
+			{
+				diffs.Add(hs[0]);
+			}
 		}
+
+		sr.Close();
+		fs.Close();
+
+		string fileName = m_SaveFilePath.Remove(m_SaveFilePath.Length - 1) + "-" + m_LastVersion;
+		FileUtil.DeleteFileOrDirectory(fileName);
+		if (!Directory.Exists(fileName))
+		{
+			DirectoryInfo f = new DirectoryInfo(fileName);
+			f.Create();
+		}
+
+		string[] files = Directory.GetFiles(m_SaveFilePath);
+		foreach (string f in files)
+		{
+			FileInfo i = new FileInfo(f);
+			string save = fileName + "/" + i.Name;
+			if (diffs.Contains(i.Name))
+			{
+				File.Copy(f, save, true);
+			}
+		}
+
+		EditorUtility.OpenWithDefaultApp(fileName);
 	}
 
 	/// <summary>
@@ -319,7 +408,7 @@ public class CreateAB : EditorWindow
 									target);
 		AssetDatabase.Refresh();
 
-		ExitFileVersion();
+		//ExitFileVersion();
 		EditorUtility.OpenWithDefaultApp(m_SaveFilePath);
 	}
 

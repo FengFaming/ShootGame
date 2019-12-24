@@ -38,6 +38,37 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 移除某一个正在加载的数据
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="type"></param>
+		/// <param name="cb"></param>
+		public void RemoveLoadObject(string name, ResObjectType type, IResObjectCallBack cb)
+		{
+			LoadResObjectInfo info = new LoadResObjectInfo();
+			info.m_LoadName = name;
+			info.m_LoadType = type;
+			info.m_LoadCB.Add(cb);
+
+			if (m_NeedLoadInfos.Contains(info))
+			{
+				for (int index = 0; index < m_NeedLoadInfos.Count; index++)
+				{
+					if (m_NeedLoadInfos[index].Equals(info))
+					{
+						m_NeedLoadInfos[index].m_LoadCB.Remove(cb);
+						if (m_NeedLoadInfos[index].m_LoadCB.Count <= 0)
+						{
+							m_NeedLoadInfos.RemoveAt(index);
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		/// <summary>
 		/// 加载资源
 		/// </summary>
 		/// <param name="name"></param>

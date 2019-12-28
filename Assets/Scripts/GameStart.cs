@@ -13,9 +13,8 @@ using Game.Engine;
 public class GameStart : ObjectBase
 {
 	public string m_IDCard = "44022219910116033X";
-	public Vector2Int m_AddMessage;
-	public Vector2Int m_RemoveMessage;
-	public Vector2Int m_SendMessge;
+	public string m_UIName;
+	public UILayer m_Layer;
 
 	private void Start()
 	{
@@ -39,36 +38,9 @@ public class GameStart : ObjectBase
 			Debug.Log(EngineTools.Instance.CheckIDCardSex(m_IDCard));
 		}
 
-		if (Input.GetKeyUp(KeyCode.Q))
+		if (Input.GetKeyUp(KeyCode.O))
 		{
-			for (int index = m_AddMessage.x; index < m_AddMessage.y; index++)
-			{
-				MessageManger.Instance.AddMessageListener(index.ToString(), this.gameObject, Ms);
-			}
-		}
-
-		if (Input.GetKeyUp(KeyCode.W))
-		{
-			for (int index = m_RemoveMessage.x; index < m_RemoveMessage.y; index++)
-			{
-				MessageManger.Instance.RemoveMessageListener(index.ToString(), this.gameObject);
-			}
-		}
-
-		if (Input.GetKeyUp(KeyCode.E))
-		{
-			MessageManger.Instance.SendMessage(m_SendMessge.x.ToString(), m_SendMessge.y);
-		}
-
-		if (Input.GetKeyUp(KeyCode.R))
-		{
-			MessageManger.Instance.RemoveMessageListener(this.gameObject);
-			MessageManger.Instance.RearrangeMessage();
-		}
-
-		if (Input.GetKeyUp(KeyCode.T))
-		{
-			MessageManger.Instance.AddMessageListener(90.ToString(), Ms);
+			UIManager.Instance.OpenUI(m_UIName, m_Layer);
 		}
 	}
 

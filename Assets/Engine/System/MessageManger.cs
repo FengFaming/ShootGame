@@ -290,8 +290,9 @@ namespace Game.Engine
 		/// </summary>
 		private bool m_IsRearrange;
 
-		private void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 			m_KeyWithIndex = new Dictionary<string, int>();
 			m_AllMessageListens = new List<MessagesInfo>();
 			m_AllMessageListens.Clear();

@@ -191,8 +191,9 @@ namespace Game.Engine
 		/// </summary>
 		private List<LoadResObjectInfo> m_NeedLoadInfos;
 
-		private void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 			m_AllABInfoDic = new Dictionary<string, ABInfo>();
 			m_AllABInfoDic.Clear();
 

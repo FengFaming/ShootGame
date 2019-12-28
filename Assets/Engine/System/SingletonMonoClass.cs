@@ -34,11 +34,12 @@ namespace Game.Engine
 			}
 		}
 
-		private void Awake()
+		protected virtual void Awake()
 		{
 			if (m_Instance == null)
 			{
 				m_Instance = this.gameObject.GetComponent<T>();
+				GameObject.DontDestroyOnLoad(m_Instance.gameObject);
 			}
 		}
 	}

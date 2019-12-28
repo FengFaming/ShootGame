@@ -76,30 +76,33 @@ namespace Game.Engine
 		/// <param name="cb"></param>
 		public void LoadObject(string name, ResObjectType type, IResObjectCallBack cb)
 		{
-			LoadResObjectInfo info = new LoadResObjectInfo();
-			info.m_LoadName = name;
-			info.m_LoadType = type;
-			info.m_LoadCB.Add(cb);
-
-			if (m_NeedLoadInfos.Contains(info))
+			if (m_IsInitSuccess)
 			{
-				for (int index = 0; index < m_NeedLoadInfos.Count; index++)
+				LoadResObjectInfo info = new LoadResObjectInfo();
+				info.m_LoadName = name;
+				info.m_LoadType = type;
+				info.m_LoadCB.Add(cb);
+
+				if (m_NeedLoadInfos.Contains(info))
 				{
-					if (m_NeedLoadInfos[index].Equals(info))
+					for (int index = 0; index < m_NeedLoadInfos.Count; index++)
 					{
-						m_NeedLoadInfos[index].m_LoadCB.Add(cb);
-						break;
+						if (m_NeedLoadInfos[index].Equals(info))
+						{
+							m_NeedLoadInfos[index].m_LoadCB.Add(cb);
+							break;
+						}
 					}
 				}
-			}
-			else
-			{
-				m_NeedLoadInfos.Add(info);
-			}
+				else
+				{
+					m_NeedLoadInfos.Add(info);
+				}
 
-			if (!m_IsLoad)
-			{
-				StartCoroutine("LoadYiedFunction");
+				if (!m_IsLoad)
+				{
+					StartCoroutine("LoadYiedFunction");
+				}
 			}
 		}
 	}

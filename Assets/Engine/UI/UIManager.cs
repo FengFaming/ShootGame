@@ -48,20 +48,19 @@ namespace Game.Engine
 		internal class LoadUIModel : IResObjectCallBack
 		{
 			private IUIModelControl m_Control;
-			private UILayer m_Layer;
-			private List<object> m_Arms;
-			private Action<object[]> m_CallBack;
+			private Action<object, IUIModelControl, List<string>, IUIModelControl> m_CallBack;
 
-			public LoadUIModel(IUIModelControl control, UILayer layer, Action<object[]> cb, params object[] arms)
+			public List<string> m_Others;
+			public IUIModelControl m_OtherControl;
+
+			public LoadUIModel(IUIModelControl control,
+				Action<object, IUIModelControl, List<string>, IUIModelControl> cb)
 			{
 				m_Control = control;
 				m_CallBack = cb;
-				m_Layer = layer;
-				m_Arms = new List<object>();
-				if (arms != null && arms.Length > 0)
-				{
-					m_Arms.AddRange(arms);
-				}
+				m_Others = new List<string>();
+				m_Others.Clear();
+				m_OtherControl = null;
 			}
 
 			/// <summary>
@@ -72,10 +71,7 @@ namespace Game.Engine
 			{
 				if (m_CallBack != null)
 				{
-					m_Arms.Insert(0, m_Layer);
-					m_Arms.Insert(0, t);
-					m_Arms.Insert(0, m_Control);
-					m_CallBack(m_Arms.ToArray());
+					m_CallBack(t, m_Control, m_Others, m_OtherControl);
 				}
 			}
 
@@ -123,68 +119,6 @@ namespace Game.Engine
 		}
 
 		/// <summary>
-		/// 设置父亲节点
-		/// </summary>
-		/// <param name="layer"></param>
-		/// <param name="go"></param>
-		private void SetParent(UILayer layer, GameObject go)
-		{
-			go.transform.position = Vector3.zero;
-			go.transform.eulerAngles = Vector3.zero;
-			go.transform.SetParent(m_ParentDic[layer]);
-			go.transform.localPosition = Vector3.zero;
-			go.transform.localEulerAngles = Vector3.zero;
-			go.transform.localScale = Vector3.one;
-		}
-
-		/// <summary>
-		/// 加载回调
-		/// </summary>
-		/// <param name="arms"></param>
-		private void LoadCalBack(params object[] arms)
-		{
-			IUIModelControl control = arms[0] as IUIModelControl;
-			GameObject target = arms[1] as GameObject;
-			UILayer layer = (UILayer)arms[2];
-			List<object> ds = new List<object>();
-			if (arms.Length > 3)
-			{
-				for (int index = 3; index < arms.Length; index++)
-				{
-					ds.Add(arms[index]);
-				}
-			}
-
-			SetParent(layer, target);
-			control.OpenSelf(target, layer, ds.ToArray());
-			if (m_AllShowUIModels.ContainsKey(layer))
-			{
-				for (int index = 0; index < m_AllShowUIModels[layer].Count; index++)
-				{
-					if (m_AllShowUIModels[layer][index].m_IsOnlyID != index)
-					{
-						control.m_IsOnlyID = index;
-						break;
-					}
-				}
-
-				m_AllShowUIModels[layer].Add(control);
-			}
-			else
-			{
-				control.m_IsOnlyID = 0;
-				m_AllShowUIModels.Add(layer, new List<IUIModelControl>() { control });
-			}
-
-			m_AllShowUIModels[layer].Sort((IUIModelControl c1, IUIModelControl c2) =>
-			{
-				return c1.m_IsOnlyID - c2.m_IsOnlyID;
-			});
-
-			m_ShowSequence.Insert(0, new KeyValuePair<UILayer, int>(layer, control.m_IsOnlyID));
-		}
-
-		/// <summary>
 		/// 打开界面
 		/// </summary>
 		/// <param name="name">类名</param>
@@ -195,12 +129,7 @@ namespace Game.Engine
 			IUIModelControl control = ReflexManager.Instance.CreateClass(name) as IUIModelControl;
 			if (control != null)
 			{
-				if (!control.m_IsOnlyOne)
-				{
-					LoadUIModel lu = new LoadUIModel(control, layer, LoadCalBack, arms);
-					ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath, ResObjectType.UIPrefab, lu);
-				}
-				else
+				if (control.m_IsOnlyOne)
 				{
 					if (m_AllShowUIModels.ContainsKey(layer))
 					{
@@ -208,16 +137,16 @@ namespace Game.Engine
 						{
 							if (m_AllShowUIModels[layer][index].GetType().Name == name)
 							{
-								return;
+								control = m_AllShowUIModels[layer][index];
+								m_AllShowUIModels[layer].RemoveAt(index);
+								break;
 							}
 						}
 					}
-					else
-					{
-						LoadUIModel lu = new LoadUIModel(control, layer, LoadCalBack, arms);
-						ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath, ResObjectType.UIPrefab, lu);
-					}
 				}
+
+				control.InitUIData(layer, arms);
+				OpenSelfUI(control);
 			}
 		}
 
@@ -229,6 +158,156 @@ namespace Game.Engine
 		{
 			ui.SetActive(false);
 			GameObject.Destroy(ui);
+		}
+
+		/// <summary>
+		/// 设置父亲节点
+		/// </summary>
+		/// <param name="layer"></param>
+		/// <param name="go"></param>
+		private void SetParent(UILayer layer, GameObject go)
+		{
+			go.transform.SetParent(m_ParentDic[layer]);
+			go.transform.SetAsLastSibling();
+
+			RectTransform tf = go.GetComponent<RectTransform>();
+			tf.localPosition = Vector3.zero;
+			tf.localEulerAngles = Vector3.zero;
+			tf.localScale = Vector3.one;
+			tf.sizeDelta = Vector2.zero;
+			tf.anchorMin = Vector2.zero;
+			tf.anchorMax = Vector2.one;
+			tf.pivot = Vector2.one * 0.5f;
+		}
+
+		/// <summary>
+		/// 加载回调
+		/// </summary>
+		/// <param name="t"></param>
+		/// <param name="control"></param>
+		private void LoadCalBack(object t, IUIModelControl control, List<string> others, IUIModelControl other)
+		{
+			GameObject target = t as GameObject;
+			SetParent(control.Layer, target);
+			control.OpenSelf(target);
+			if (m_AllShowUIModels.ContainsKey(control.Layer))
+			{
+				for (int index = 0; index < m_AllShowUIModels[control.Layer].Count; index++)
+				{
+					if (m_AllShowUIModels[control.Layer][index].m_IsOnlyID != index)
+					{
+						control.m_IsOnlyID = index;
+						break;
+					}
+				}
+
+				m_AllShowUIModels[control.Layer].Add(control);
+			}
+			else
+			{
+				control.m_IsOnlyID = 0;
+				m_AllShowUIModels.Add(control.Layer, new List<IUIModelControl>() { control });
+			}
+
+			m_AllShowUIModels[control.Layer].Sort((IUIModelControl c1, IUIModelControl c2) =>
+			{
+				return c1.m_IsOnlyID - c2.m_IsOnlyID;
+			});
+
+			m_ShowSequence.Insert(0, new KeyValuePair<UILayer, int>(control.Layer, control.m_IsOnlyID));
+			OpenOtherUI(others, control.Layer, other);
+		}
+
+		/// <summary>
+		/// 打开其他关联数据
+		/// </summary>
+		/// <param name="others"></param>
+		private void OpenOtherUI(List<string> others, UILayer layer, IUIModelControl other)
+		{
+			if (others.Count > 0)
+			{
+				string name = others[0];
+				others.RemoveAt(0);
+				IUIModelControl control = ReflexManager.Instance.CreateClass(name) as IUIModelControl;
+				if (control == null)
+				{
+					OpenOtherUI(others, layer, other);
+				}
+				else
+				{
+					if (control.m_IsOnlyOne)
+					{
+						if (m_AllShowUIModels.ContainsKey(layer))
+						{
+							for (int index = 0; index < m_AllShowUIModels[layer].Count; index++)
+							{
+								if (m_AllShowUIModels[layer][index].GetType().Name == name)
+								{
+									control = m_AllShowUIModels[layer][index];
+									m_AllShowUIModels[layer].RemoveAt(index);
+									break;
+								}
+							}
+						}
+					}
+
+					control.InitUIData(layer);
+					if (control.ControlTarget == null)
+					{
+						LoadUIModel lu = new LoadUIModel(control, LoadCalBack);
+						lu.m_OtherControl = other;
+						lu.m_Others = others;
+						ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath,
+							ResObjectType.UIPrefab, lu);
+					}
+					else
+					{
+						LoadCalBack(control.ControlTarget, control, others, other);
+					}
+				}
+			}
+			else
+			{
+				if (other != null)
+				{
+					if (other.ControlTarget == null)
+					{
+						LoadUIModel lu = new LoadUIModel(other, LoadCalBack);
+						ResObjectManager.Instance.LoadObject(other.m_ModelObjectPath,
+							ResObjectType.UIPrefab, lu);
+					}
+					else
+					{
+						LoadCalBack(other.ControlTarget, other, others, other);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 对象数据
+		/// </summary>
+		/// <param name="control"></param>
+		private void OpenSelfUI(IUIModelControl control)
+		{
+			List<string> parents = control.GetLinksUI();
+			if (parents.Count > 0)
+			{
+				OpenOtherUI(parents, control.Layer, control);
+			}
+			else
+			{
+				if (control.ControlTarget != null)
+				{
+					LoadCalBack(control.ControlTarget, control, null, null);
+				}
+				else
+				{
+					LoadUIModel lu = new LoadUIModel(control, LoadCalBack);
+					ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath,
+						ResObjectType.UIPrefab, lu);
+				}
+			}
 		}
 	}
 }

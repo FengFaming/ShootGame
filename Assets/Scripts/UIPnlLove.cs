@@ -14,7 +14,7 @@ public class UIPnlLove : IUIModelControl
 {
 	public UIPnlLove() : base()
 	{
-		m_ModelObjectPath = "UIPnlLove";
+		m_ModelObjectPath = "UIPnlLove1";
 		m_IsOnlyOne = true;
 	}
 }

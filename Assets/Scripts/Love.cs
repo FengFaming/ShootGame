@@ -17,4 +17,11 @@ public class Love : IUIModelControl
 		m_ModelObjectPath = "UIPnlLove";
 		m_IsOnlyOne = false;
 	}
+
+	public override List<string> GetLinksUI()
+	{
+		List<string> links = base.GetLinksUI();
+		links.Add("UIPnlLove");
+		return links;
+	}
 }

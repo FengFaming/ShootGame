@@ -34,11 +34,13 @@ namespace Game.Engine
 		/// 管理的模型实体
 		/// </summary>
 		protected GameObject m_ControlTarget;
+		public GameObject ControlTarget { get { return m_ControlTarget; } }
 
 		/// <summary>
 		/// ui显示层级
 		/// </summary>
 		protected UILayer m_Layer;
+		public UILayer Layer { get { return m_Layer; } }
 
 		/// <summary>
 		/// 是否显示当中
@@ -60,15 +62,31 @@ namespace Game.Engine
 		}
 
 		/// <summary>
-		/// 打开自己
+		/// 获取相互关联的界面
 		/// </summary>
-		/// <param name="target"></param>
+		/// <returns></returns>
+		public virtual List<string> GetLinksUI()
+		{
+			return new List<string>();
+		}
+
+		/// <summary>
+		/// 初始化自身数据
+		/// </summary>
 		/// <param name="layer"></param>
 		/// <param name="arms"></param>
-		public virtual void OpenSelf(GameObject target, UILayer layer, params object[] arms)
+		public virtual void InitUIData(UILayer layer, params object[] arms)
+		{
+			m_Layer = layer;
+		}
+
+		/// <summary>
+		/// 打开自己
+		/// </summary>
+		/// <param name="target"></param> 
+		public virtual void OpenSelf(GameObject target)
 		{
 			m_ControlTarget = target;
-			m_Layer = layer;
 			SetUIDisable(true);
 		}
 

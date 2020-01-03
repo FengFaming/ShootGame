@@ -24,10 +24,10 @@ public class Love : IUIModelControl
 		Debug.Log("open love");
 	}
 
-	public override List<string> GetLinksUI()
-	{
-		List<string> links = base.GetLinksUI();
-		links.Add("UIPnlLove");
-		return links;
-	}
+	//public override List<string> GetLinksUI()
+	//{
+	//	List<string> links = base.GetLinksUI();
+	//	links.Add("UIPnlLove");
+	//	return links;
+	//}
 }

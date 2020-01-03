@@ -86,6 +86,27 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 需要加载的队列
+		/// </summary>
+		internal class OpenUIData
+		{
+			public string m_Name;
+			public UILayer m_Layer;
+			public List<object> m_Arms;
+
+			public OpenUIData(string name, UILayer layer, params object[] arms)
+			{
+				m_Name = name;
+				m_Layer = layer;
+				m_Arms = new List<object>();
+				if (arms != null)
+				{
+					m_Arms.AddRange(arms);
+				}
+			}
+		}
+
+		/// <summary>
 		/// 所有正在显示的UI内容
 		/// </summary>
 		private Dictionary<UILayer, List<IUIModelControl>> m_AllShowUIModels;
@@ -95,7 +116,20 @@ namespace Game.Engine
 		/// </summary>
 		private List<KeyValuePair<UILayer, int>> m_ShowSequence;
 
+		/// <summary>
+		/// 父节点
+		/// </summary>
 		private Dictionary<UILayer, Transform> m_ParentDic;
+
+		/// <summary>
+		/// 需要打开的界面队列
+		/// </summary>
+		private List<OpenUIData> m_NeedOpenUIs;
+
+		/// <summary>
+		/// 已经有正在打开的界面
+		/// </summary>
+		private bool m_HasOpen;
 
 		protected override void Awake()
 		{
@@ -116,6 +150,10 @@ namespace Game.Engine
 					m_ParentDic.Add((UILayer)index, tf);
 				}
 			}
+
+			m_NeedOpenUIs = new List<OpenUIData>();
+			m_NeedOpenUIs.Clear();
+			m_HasOpen = false;
 		}
 
 		/// <summary>
@@ -126,28 +164,9 @@ namespace Game.Engine
 		/// <param name="arms">变长参数</param>
 		public void OpenUI(string name, UILayer layer, params object[] arms)
 		{
-			IUIModelControl control = ReflexManager.Instance.CreateClass(name) as IUIModelControl;
-			if (control != null)
-			{
-				if (control.m_IsOnlyOne)
-				{
-					if (m_AllShowUIModels.ContainsKey(layer))
-					{
-						for (int index = 0; index < m_AllShowUIModels[layer].Count; index++)
-						{
-							if (m_AllShowUIModels[layer][index].GetType().Name == name)
-							{
-								control = m_AllShowUIModels[layer][index];
-								m_AllShowUIModels[layer].RemoveAt(index);
-								break;
-							}
-						}
-					}
-				}
-
-				control.InitUIData(layer, arms);
-				OpenSelfUI(control);
-			}
+			OpenUIData data = new OpenUIData(name, layer, arms);
+			m_NeedOpenUIs.Add(data);
+			OpenUI();
 		}
 
 		/// <summary>
@@ -161,6 +180,42 @@ namespace Game.Engine
 		}
 
 		#region 打开相关
+		/// <summary>
+		/// 内部打开数据
+		/// </summary>
+		private void OpenUI()
+		{
+			if (!m_HasOpen && m_NeedOpenUIs.Count > 0)
+			{
+				m_HasOpen = true;
+				OpenUIData data = m_NeedOpenUIs[0];
+				string name = data.m_Name;
+				UILayer layer = data.m_Layer;
+				IUIModelControl control = ReflexManager.Instance.CreateClass(name) as IUIModelControl;
+				if (control != null)
+				{
+					if (control.m_IsOnlyOne)
+					{
+						if (m_AllShowUIModels.ContainsKey(layer))
+						{
+							for (int index = 0; index < m_AllShowUIModels[layer].Count; index++)
+							{
+								if (m_AllShowUIModels[layer][index].GetType().Name == name)
+								{
+									control = m_AllShowUIModels[layer][index];
+									m_AllShowUIModels[layer].RemoveAt(index);
+									break;
+								}
+							}
+						}
+					}
+
+					control.InitUIData(layer, data.m_Arms.ToArray());
+					OpenSelfUI(control);
+				}
+			}
+		}
+
 		/// <summary>
 		/// 设置父亲节点
 		/// </summary>
@@ -191,7 +246,6 @@ namespace Game.Engine
 		{
 			GameObject target = t as GameObject;
 			SetParent(control.Layer, target);
-			control.OpenSelf(target);
 			if (m_AllShowUIModels.ContainsKey(control.Layer))
 			{
 				for (int index = 0; index < m_AllShowUIModels[control.Layer].Count; index++)
@@ -217,6 +271,7 @@ namespace Game.Engine
 			});
 
 			m_ShowSequence.Insert(0, new KeyValuePair<UILayer, int>(control.Layer, control.m_IsOnlyID));
+			control.OpenSelf(target);
 			OpenOtherUI(others, control.Layer, other);
 		}
 
@@ -281,6 +336,18 @@ namespace Game.Engine
 					else
 					{
 						LoadCalBack(self.ControlTarget, self, null, null);
+					}
+				}
+				else
+				{
+					//打开完毕，进行其他的操作
+					Debug.Log("open end.");
+					OpenUIData data = m_NeedOpenUIs[0];
+					m_NeedOpenUIs.RemoveAt(0);
+					m_HasOpen = false;
+					if (m_NeedOpenUIs.Count > 0)
+					{
+						OpenUI();
 					}
 				}
 			}

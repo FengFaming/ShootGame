@@ -13,7 +13,7 @@ using Game.Engine;
 public class GameStart : ObjectBase
 {
 	public string m_IDCard = "44022219910116033X";
-	public string m_UIName;
+	public List<string> m_UINames;
 	public UILayer m_Layer;
 
 	private void Start()
@@ -40,7 +40,10 @@ public class GameStart : ObjectBase
 
 		if (Input.GetKeyUp(KeyCode.O))
 		{
-			UIManager.Instance.OpenUI(m_UIName, m_Layer);
+			for (int index = 0; index < m_UINames.Count; index++)
+			{
+				UIManager.Instance.OpenUI(m_UINames[index], m_Layer);
+			}
 		}
 	}
 

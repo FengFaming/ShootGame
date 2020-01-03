@@ -28,6 +28,11 @@ namespace Game.Engine
 		/// 唯一的ID号，由控制类分配
 		/// </summary>
 		public int m_IsOnlyID;
+
+		/// <summary>
+		/// 用来描述是否是同一个类的内容
+		/// </summary>
+		public string m_ControlName;
 		#endregion
 
 		/// <summary>
@@ -68,6 +73,35 @@ namespace Game.Engine
 		public virtual List<string> GetLinksUI()
 		{
 			return new List<string>();
+		}
+
+		/// <summary>
+		/// 获取隐藏排除界面
+		/// </summary>
+		/// <param name="others"></param>
+		/// <returns></returns>
+		public virtual bool GetActiveOther(ref List<string> others)
+		{
+			return false;
+		}
+
+		/// <summary>
+		/// 获取关闭排除界面
+		/// </summary>
+		/// <param name="others"></param>
+		/// <returns></returns>
+		public virtual bool GetCloseOther(ref List<string> others)
+		{
+			return false;
+		}
+
+		/// <summary>
+		/// 获取是否存在于回退界面
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool GetGoBackControl()
+		{
+			return false;
 		}
 
 		/// <summary>

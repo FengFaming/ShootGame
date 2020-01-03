@@ -160,6 +160,7 @@ namespace Game.Engine
 			GameObject.Destroy(ui);
 		}
 
+		#region 打开相关
 		/// <summary>
 		/// 设置父亲节点
 		/// </summary>
@@ -185,7 +186,8 @@ namespace Game.Engine
 		/// </summary>
 		/// <param name="t"></param>
 		/// <param name="control"></param>
-		private void LoadCalBack(object t, IUIModelControl control, List<string> others, IUIModelControl other)
+		private void LoadCalBack(object t, IUIModelControl control,
+			List<string> others, IUIModelControl other)
 		{
 			GameObject target = t as GameObject;
 			SetParent(control.Layer, target);
@@ -222,16 +224,16 @@ namespace Game.Engine
 		/// 打开其他关联数据
 		/// </summary>
 		/// <param name="others"></param>
-		private void OpenOtherUI(List<string> others, UILayer layer, IUIModelControl other)
+		private void OpenOtherUI(List<string> others, UILayer layer, IUIModelControl self)
 		{
-			if (others.Count > 0)
+			if (others != null && others.Count > 0)
 			{
 				string name = others[0];
 				others.RemoveAt(0);
 				IUIModelControl control = ReflexManager.Instance.CreateClass(name) as IUIModelControl;
 				if (control == null)
 				{
-					OpenOtherUI(others, layer, other);
+					OpenOtherUI(others, layer, self);
 				}
 				else
 				{
@@ -255,30 +257,30 @@ namespace Game.Engine
 					if (control.ControlTarget == null)
 					{
 						LoadUIModel lu = new LoadUIModel(control, LoadCalBack);
-						lu.m_OtherControl = other;
+						lu.m_OtherControl = self;
 						lu.m_Others = others;
 						ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath,
 							ResObjectType.UIPrefab, lu);
 					}
 					else
 					{
-						LoadCalBack(control.ControlTarget, control, others, other);
+						LoadCalBack(control.ControlTarget, control, others, self);
 					}
 				}
 			}
 			else
 			{
-				if (other != null)
+				if (self != null)
 				{
-					if (other.ControlTarget == null)
+					if (self.ControlTarget == null)
 					{
-						LoadUIModel lu = new LoadUIModel(other, LoadCalBack);
-						ResObjectManager.Instance.LoadObject(other.m_ModelObjectPath,
+						LoadUIModel lu = new LoadUIModel(self, LoadCalBack);
+						ResObjectManager.Instance.LoadObject(self.m_ModelObjectPath,
 							ResObjectType.UIPrefab, lu);
 					}
 					else
 					{
-						LoadCalBack(other.ControlTarget, other, others, other);
+						LoadCalBack(self.ControlTarget, self, null, null);
 					}
 				}
 			}
@@ -309,5 +311,6 @@ namespace Game.Engine
 				}
 			}
 		}
+		#endregion
 	}
 }

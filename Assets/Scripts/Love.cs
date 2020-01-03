@@ -15,7 +15,13 @@ public class Love : IUIModelControl
 	public Love() : base()
 	{
 		m_ModelObjectPath = "UIPnlLove";
-		m_IsOnlyOne = false;
+		m_IsOnlyOne = true;
+	}
+
+	public override void OpenSelf(GameObject target)
+	{
+		base.OpenSelf(target);
+		Debug.Log("open love");
 	}
 
 	public override List<string> GetLinksUI()

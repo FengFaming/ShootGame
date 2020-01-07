@@ -24,6 +24,11 @@ public class Love : IUIModelControl
 		Debug.Log("open love");
 	}
 
+	public override bool GetCloseOther(ref List<string> others)
+	{
+		return true;
+	}
+
 	//public override List<string> GetLinksUI()
 	//{
 	//	List<string> links = base.GetLinksUI();

@@ -170,13 +170,68 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 获取界面
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="layer"></param>
+		/// <returns></returns>
+		public IUIModelControl GetShowUI(string name, UILayer layer = UILayer.None)
+		{
+			IUIModelControl ui = null;
+
+			layer = layer == UILayer.None ? UILayer.Pnl : layer;
+			List<IUIModelControl> cs = m_AllShowUIModels[layer];
+			for (int index = 0; index < cs.Count; index++)
+			{
+				if (cs[index].GetType().Name == name)
+				{
+					ui = cs[index];
+					break;
+				}
+			}
+
+			return ui;
+		}
+
+		/// <summary>
 		/// 回收ui对象
 		/// </summary>
 		/// <param name="ui"></param>
-		public void RecoveryUIModel(GameObject ui)
+		public void RecoveryUIModel(IUIModelControl ui, bool manager)
 		{
-			ui.SetActive(false);
-			GameObject.Destroy(ui);
+			ui.ControlTarget.SetActive(false);
+			GameObject.Destroy(ui.ControlTarget);
+
+			UILayer layer = ui.Layer;
+			int id = ui.m_IsOnlyID;
+
+			///移除回退界面记录
+			KeyValuePair<UILayer, int> value = new KeyValuePair<UILayer, int>(layer, id);
+			m_ShowSequence.Remove(value);
+			//for (int index = 0; index < m_ShowSequence.Count; index++)
+			//{
+			//	if (m_ShowSequence.Equals(value))
+			//	{
+			//		m_ShowSequence.RemoveAt(index);
+			//		break;
+			//	}
+			//}
+
+			///移除整体界面记录
+			List<IUIModelControl> cs = m_AllShowUIModels[layer];
+			for (int index = 0; index < cs.Count; index++)
+			{
+				if (cs[index].m_IsOnlyID == id)
+				{
+					cs.RemoveAt(index);
+					break;
+				}
+			}
+
+			if (!manager)
+			{
+				GoBackWithClose(ui);
+			}
 		}
 
 		#region 打开相关
@@ -246,8 +301,14 @@ namespace Game.Engine
 		{
 			GameObject target = t as GameObject;
 			SetParent(control.Layer, target);
+
 			if (m_AllShowUIModels.ContainsKey(control.Layer))
 			{
+				m_AllShowUIModels[control.Layer].Sort((IUIModelControl c1, IUIModelControl c2) =>
+				{
+					return c1.m_IsOnlyID - c2.m_IsOnlyID;
+				});
+
 				for (int index = 0; index < m_AllShowUIModels[control.Layer].Count; index++)
 				{
 					if (m_AllShowUIModels[control.Layer][index].m_IsOnlyID != index)
@@ -265,12 +326,11 @@ namespace Game.Engine
 				m_AllShowUIModels.Add(control.Layer, new List<IUIModelControl>() { control });
 			}
 
-			m_AllShowUIModels[control.Layer].Sort((IUIModelControl c1, IUIModelControl c2) =>
+			if (control.IsGoBack())
 			{
-				return c1.m_IsOnlyID - c2.m_IsOnlyID;
-			});
+				m_ShowSequence.Insert(0, new KeyValuePair<UILayer, int>(control.Layer, control.m_IsOnlyID));
+			}
 
-			m_ShowSequence.Insert(0, new KeyValuePair<UILayer, int>(control.Layer, control.m_IsOnlyID));
 			control.OpenSelf(target);
 			OpenOtherUI(others, control.Layer, other);
 		}
@@ -306,6 +366,14 @@ namespace Game.Engine
 								}
 							}
 						}
+					}
+
+					if (control.m_IsOnlyID > -1)
+					{
+						UILayer cl = control.Layer;
+						int id = control.m_IsOnlyID;
+						KeyValuePair<UILayer, int> cv = new KeyValuePair<UILayer, int>(cl, id);
+						m_ShowSequence.Remove(cv);
 					}
 
 					control.InitUIData(layer);
@@ -344,6 +412,8 @@ namespace Game.Engine
 					Debug.Log("open end.");
 					OpenUIData data = m_NeedOpenUIs[0];
 					m_NeedOpenUIs.RemoveAt(0);
+					CloseOther(data);
+
 					m_HasOpen = false;
 					if (m_NeedOpenUIs.Count > 0)
 					{
@@ -375,6 +445,91 @@ namespace Game.Engine
 					LoadUIModel lu = new LoadUIModel(control, LoadCalBack);
 					ResObjectManager.Instance.LoadObject(control.m_ModelObjectPath,
 						ResObjectType.UIPrefab, lu);
+				}
+			}
+		}
+		#endregion
+
+		#region 关闭相关
+		/// <summary>
+		/// 因为打开界面引起的关闭和隐藏界面
+		/// </summary>
+		/// <param name="last"></param>
+		private void CloseOther(OpenUIData last)
+		{
+			IUIModelControl control = null;
+			List<IUIModelControl> cs = m_AllShowUIModels[last.m_Layer];
+			for (int index = 0; index < cs.Count; index++)
+			{
+				if (cs[index].GetType().Name == last.m_Name)
+				{
+					control = cs[index];
+					break;
+				}
+			}
+
+			if (control != null)
+			{
+				List<string> closes = new List<string>();
+				closes.Add(last.m_Name);
+				closes.AddRange(control.GetLinksUI());
+				bool n = control.GetCloseOther(ref closes);
+				if (n)
+				{
+					List<IUIModelControl> cls = new List<IUIModelControl>();
+					for (int index = 0; index < cs.Count; index++)
+					{
+						if (!closes.Contains(cs[index].GetType().Name))
+						{
+							if (!cs[index].IsClose())
+							{
+								cls.Add(cs[index]);
+							}
+						}
+					}
+
+					for (int index = 0; index < cls.Count; index++)
+					{
+						cls[index].CloseSelf(true);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 因为关闭导致的回退界面
+		/// </summary>
+		private void GoBackWithClose(IUIModelControl ui)
+		{
+			List<IUIModelControl> cs = m_AllShowUIModels[ui.Layer];
+			List<IUIModelControl> nc = new List<IUIModelControl>();
+			string uiparten = ui.GetType().Name;
+			for (int index = 0; index < cs.Count; index++)
+			{
+				if (cs[index].GetLinksUI().Contains(uiparten))
+				{
+					nc.Add(cs[index]);
+				}
+			}
+
+			for (int index = 0; index < nc.Count; index++)
+			{
+				nc[index].CloseSelf(true);
+			}
+
+			if (m_ShowSequence.Count > 0)
+			{
+				KeyValuePair<UILayer, int> value = m_ShowSequence[0];
+				m_ShowSequence.RemoveAt(0);
+
+				List<IUIModelControl> ccs = m_AllShowUIModels[value.Key];
+				for (int index = 0; index < ccs.Count; index++)
+				{
+					if (ccs[index].m_IsOnlyID == value.Value)
+					{
+						OpenUI(ccs[index].GetType().Name, ccs[index].Layer);
+						break;
+					}
 				}
 			}
 		}

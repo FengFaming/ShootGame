@@ -28,11 +28,6 @@ namespace Game.Engine
 		/// 唯一的ID号，由控制类分配
 		/// </summary>
 		public int m_IsOnlyID;
-
-		/// <summary>
-		/// 用来描述是否是同一个类的内容
-		/// </summary>
-		public string m_ControlName;
 		#endregion
 
 		/// <summary>
@@ -67,6 +62,25 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 是否参与回退界面
+		/// 主要是因为别的界面关闭会回退一个界面
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsGoBack()
+		{
+			return false;
+		}
+
+		/// <summary>
+		/// 是否允许别人关闭
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsClose()
+		{
+			return false;
+		}
+
+		/// <summary>
 		/// 获取相互关联的界面
 		/// </summary>
 		/// <returns></returns>
@@ -76,30 +90,12 @@ namespace Game.Engine
 		}
 
 		/// <summary>
-		/// 获取隐藏排除界面
-		/// </summary>
-		/// <param name="others"></param>
-		/// <returns></returns>
-		public virtual bool GetActiveOther(ref List<string> others)
-		{
-			return false;
-		}
-
-		/// <summary>
 		/// 获取关闭排除界面
+		/// 返回是否要关闭别人的操作
 		/// </summary>
 		/// <param name="others"></param>
 		/// <returns></returns>
 		public virtual bool GetCloseOther(ref List<string> others)
-		{
-			return false;
-		}
-
-		/// <summary>
-		/// 获取是否存在于回退界面
-		/// </summary>
-		/// <returns></returns>
-		public virtual bool GetGoBackControl()
 		{
 			return false;
 		}
@@ -127,10 +123,10 @@ namespace Game.Engine
 		/// <summary>
 		/// 关闭自己
 		/// </summary>
-		public virtual void CloseSelf()
+		public virtual void CloseSelf(bool manager = false)
 		{
 			MessageManger.Instance.RemoveMessageListener(m_ControlTarget);
-			UIManager.Instance.RecoveryUIModel(m_ControlTarget);
+			UIManager.Instance.RecoveryUIModel(this, manager);
 			m_ControlTarget = null;
 			m_Layer = UILayer.None;
 		}

@@ -127,9 +127,19 @@ namespace Game.Engine
 		private List<OpenUIData> m_NeedOpenUIs;
 
 		/// <summary>
+		/// 需要执行Update的界面
+		/// </summary>
+		private List<IUIModelControl> m_NeedUpdateUIs;
+
+		/// <summary>
 		/// 已经有正在打开的界面
 		/// </summary>
 		private bool m_HasOpen;
+
+		/// <summary>
+		/// 是否需要清理
+		/// </summary>
+		private bool m_IsClear;
 
 		protected override void Awake()
 		{
@@ -151,9 +161,36 @@ namespace Game.Engine
 				}
 			}
 
+			m_NeedUpdateUIs = new List<IUIModelControl>();
+			m_NeedUpdateUIs.Clear();
+
 			m_NeedOpenUIs = new List<OpenUIData>();
 			m_NeedOpenUIs.Clear();
 			m_HasOpen = false;
+			m_IsClear = false;
+		}
+
+		/// <summary>
+		/// 数据更新
+		/// </summary>
+		private void Update()
+		{
+			if (m_NeedUpdateUIs.Count > 0 &&
+							!m_IsClear)
+			{
+				for (int index = 0; index < m_NeedUpdateUIs.Count;)
+				{
+					if (m_NeedUpdateUIs[index].ControlTarget != null)
+					{
+						m_NeedUpdateUIs[index].Update();
+						index++;
+					}
+					else
+					{
+						m_NeedUpdateUIs.RemoveAt(index);
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -199,8 +236,11 @@ namespace Game.Engine
 		/// <param name="ui"></param>
 		public void RecoveryUIModel(IUIModelControl ui, bool manager)
 		{
-			ui.ControlTarget.SetActive(false);
-			GameObject.Destroy(ui.ControlTarget);
+			if (ui.ControlTarget != null)
+			{
+				ui.ControlTarget.SetActive(false);
+				GameObject.Destroy(ui.ControlTarget);
+			}
 
 			UILayer layer = ui.Layer;
 			int id = ui.m_IsOnlyID;
@@ -228,9 +268,54 @@ namespace Game.Engine
 				}
 			}
 
+			for (int index = 0; index < m_NeedUpdateUIs.Count; index++)
+			{
+				if (m_NeedUpdateUIs[index].Layer == ui.Layer &&
+					m_NeedUpdateUIs[index].m_IsOnlyID == ui.m_IsOnlyID)
+				{
+					m_NeedUpdateUIs.RemoveAt(index);
+					break;
+				}
+			}
+
 			if (!manager)
 			{
 				GoBackWithClose(ui);
+			}
+		}
+
+		/// <summary>
+		/// 添加监听
+		/// </summary>
+		/// <param name="control"></param>
+		public void AddUpdate(IUIModelControl control)
+		{
+			if (control.ControlTarget != null)
+			{
+				m_NeedUpdateUIs.Add(control);
+			}
+		}
+
+		public void ClearAllUI()
+		{
+			///存在打开界面
+			if (m_HasOpen)
+			{
+				m_IsClear = true;
+			}
+
+			m_ShowSequence.Clear();
+			m_NeedOpenUIs.Clear();
+			m_NeedUpdateUIs.Clear();
+			foreach (KeyValuePair<UILayer, List<IUIModelControl>> uis in m_AllShowUIModels)
+			{
+				for (int index = 0; index < uis.Value.Count; index++)
+				{
+					uis.Value[index].ControlTarget.SetActive(false);
+					GameObject.Destroy(uis.Value[index].ControlTarget);
+				}
+
+				uis.Value.Clear();
 			}
 		}
 
@@ -299,6 +384,13 @@ namespace Game.Engine
 		private void LoadCalBack(object t, IUIModelControl control,
 			List<string> others, IUIModelControl other)
 		{
+			if (m_IsClear)
+			{
+				m_IsClear = false;
+				m_HasOpen = false;
+				return;
+			}
+
 			GameObject target = t as GameObject;
 			SetParent(control.Layer, target);
 

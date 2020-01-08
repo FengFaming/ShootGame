@@ -231,6 +231,33 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 回收UI对象
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="layer"></param>
+		public void RecoveryUIModel(string name, UILayer layer)
+		{
+			IUIModelControl ui = GetShowUI(name, layer);
+			if (ui != null)
+			{
+				RecoveryUIModel(ui, false);
+			}
+
+			for (int index = 0; index < m_NeedOpenUIs.Count;)
+			{
+				if (m_NeedOpenUIs[index].m_Name == name &&
+					m_NeedOpenUIs[index].m_Layer == layer)
+				{
+					m_NeedOpenUIs.RemoveAt(index);
+				}
+				else
+				{
+					index++;
+				}
+			}
+		}
+
+		/// <summary>
 		/// 回收ui对象
 		/// </summary>
 		/// <param name="ui"></param>

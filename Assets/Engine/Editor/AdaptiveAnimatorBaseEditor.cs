@@ -29,6 +29,22 @@ public class AdaptiveAnimatorBaseEditor : Editor
 		EditorGUILayout.Space();
 		EditorGUILayout.Space();
 
+		EditorGUILayout.LabelField("States:");
+		if (m_Target.m_AllStateDic != null)
+		{
+			EditorGUILayout.IntField("Size:", m_Target.m_AllStateDic.Count);
+			foreach (KeyValuePair<string, AnimationStateBase> item in m_Target.m_AllStateDic)
+			{
+				EditorGUILayout.BeginHorizontal();
+				AnimationStateBase ab = item.Value;
+				EditorGUILayout.LabelField("StateName:", ab.StateName);
+				EditorGUILayout.EndHorizontal();
+			}
+		}
+
+		EditorGUILayout.Space();
+		EditorGUILayout.Space();
+
 		EditorGUILayout.LabelField("StateParameters");
 		if (m_Target.m_AllParameters != null)
 		{
@@ -38,6 +54,7 @@ public class AdaptiveAnimatorBaseEditor : Editor
 				EditorGUILayout.BeginHorizontal();
 				MyAnimatorParameters mcp = m_Target.m_AllParameters[index];
 				EditorGUILayout.EnumFlagsField(mcp.type, GUILayout.Width(80));
+				EditorGUILayout.LabelField(mcp.name, GUILayout.Width(80));
 				switch (mcp.type)
 				{
 					case AnimatorControllerParameterType.Bool:

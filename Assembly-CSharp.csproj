@@ -60,14 +60,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Engine\Animator\AnimationStateBase.cs" />
+    <Compile Include="Assets\Engine\Animator\AnimatorBase.cs" />
     <Compile Include="Assets\Engine\Object\IResObjectCallBack.cs" />
     <Compile Include="Assets\Engine\Object\ResObjectManager.cs" />
     <Compile Include="Assets\Engine\Object\ResObjectManager-Function.cs" />
+    <Compile Include="Assets\Engine\System\EngineTools.cs" />
+    <Compile Include="Assets\Engine\System\MessageManger.cs" />
     <Compile Include="Assets\Engine\System\ObjectBase.cs" />
+    <Compile Include="Assets\Engine\System\ReflexManager.cs" />
     <Compile Include="Assets\Engine\System\Singleton.cs" />
     <Compile Include="Assets\Engine\System\SingletonMonoClass.cs" />
+    <Compile Include="Assets\Engine\UI\IUIModelControl.cs" />
+    <Compile Include="Assets\Engine\UI\UIManager.cs" />
     <Compile Include="Assets\Engine\UI\UText.cs" />
+    <Compile Include="Assets\Scripts\AnimatorTest.cs" />
     <Compile Include="Assets\Scripts\GameStart.cs" />
+    <Compile Include="Assets\Scripts\Love.cs" />
+    <Compile Include="Assets\Scripts\UIPnlLove.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/admin/Documents/GitHub/ShootGame/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

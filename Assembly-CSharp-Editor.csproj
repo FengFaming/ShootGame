@@ -60,11 +60,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Engine\Editor\AdaptiveAnimatorBaseEditor.cs" />
     <Compile Include="Assets\Engine\Editor\AdaptiveTextEditor.cs" />
     <Compile Include="Assets\Engine\Editor\AssetInfo.cs" />
     <Compile Include="Assets\Engine\Editor\CreateAB.cs" />
     <Compile Include="Assets\Engine\Editor\CreateSprite.cs" />
     <Compile Include="Assets\Engine\Editor\HierarchyWindowLayerInfo.cs" />
+    <Compile Include="Assets\Engine\Editor\MathTest.cs" />
     <Compile Include="Assets\Engine\Editor\ScenesMenu.cs" />
     <Compile Include="Assets\Engine\Editor\ScenesMenuBuild.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

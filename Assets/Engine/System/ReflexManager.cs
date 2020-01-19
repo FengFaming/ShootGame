@@ -139,6 +139,24 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 获取私有方法
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="methodName"></param>
+		/// <returns></returns>
+		public MethodInfo GetMethodInfoNonPublic(Type type, string methodName)
+		{
+			Type t = System.Type.GetType(type.FullName);
+			MethodInfo info = t.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+			if (info != null)
+			{
+				return info;
+			}
+
+			return default(MethodInfo);
+		}
+
+		/// <summary>
 		/// 调用方法
 		/// </summary>
 		/// <typeparam name="T"></typeparam>

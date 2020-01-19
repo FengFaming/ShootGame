@@ -23,26 +23,57 @@ public class GameStart : ObjectBase
 
 	private void Update()
 	{
-		if (Input.GetKeyUp(KeyCode.A))
-		{
-			ResObjectCallBackBase cb = new ResObjectCallBackBase();
-			cb.m_LoadType = ResObjectType.GameObject;
-			cb.m_FinshFunction = Finsh;
+		//if (Input.GetKeyUp(KeyCode.A))
+		//{
+		//	ResObjectCallBackBase cb = new ResObjectCallBackBase();
+		//	cb.m_LoadType = ResObjectType.GameObject;
+		//	cb.m_FinshFunction = Finsh;
 
-			ResObjectManager.Instance.LoadObject("c1", ResObjectType.GameObject, cb);
-		}
+		//	ResObjectManager.Instance.LoadObject("c1", ResObjectType.GameObject, cb);
+		//}
 
-		if (Input.GetKeyUp(KeyCode.B))
-		{
-			Debug.Log(EngineTools.Instance.CheckIDCard(m_IDCard));
-			Debug.Log(EngineTools.Instance.CheckIDCardSex(m_IDCard));
-		}
+		//if (Input.GetKeyUp(KeyCode.B))
+		//{
+		//	Debug.Log(EngineTools.Instance.CheckIDCard(m_IDCard));
+		//	Debug.Log(EngineTools.Instance.CheckIDCardSex(m_IDCard));
+		//}
 
-		if (Input.GetKeyUp(KeyCode.O))
+		//if (Input.GetKeyUp(KeyCode.O))
+		//{
+		//	for (int index = 0; index < m_UINames.Count; index++)
+		//	{
+		//		UIManager.Instance.OpenUI(m_UINames[index], m_Layer);
+		//	}
+		//}
+
+		//if (Input.GetKeyDown(KeyCode.P))
 		{
-			for (int index = 0; index < m_UINames.Count; index++)
+			if (Input.GetKeyUp(KeyCode.I))
 			{
-				UIManager.Instance.OpenUI(m_UINames[index], m_Layer);
+				ObjectPoolManager.Instance.InitPool("TEST", "TestObjectPool");
+			}
+
+			if (Input.GetKeyUp(KeyCode.A))
+			{
+				ObjectPoolControl oc = new ObjectPoolControl();
+				ObjectPoolManager.Instance.AddObject("TEST", "CES", oc);
+			}
+
+			if (Input.GetKeyUp(KeyCode.R))
+			{
+				ObjectPoolManager.Instance.RemoveObject("TEST", "CES");
+			}
+
+			if (Input.GetKeyUp(KeyCode.B))
+			{
+				ObjectPoolControl oc = new ObjectPoolControl();
+				ObjectPoolManager.Instance.RecoveryObject("TEST", "CES", oc);
+			}
+
+			if (Input.GetKeyUp(KeyCode.G))
+			{
+				ObjectPoolControl oc = ObjectPoolManager.Instance.GetCloneObject("TEST", "CES");
+				Debug.Log(oc);
 			}
 		}
 	}

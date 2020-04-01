@@ -57,7 +57,12 @@ namespace Game.Engine
 		/// <summary>
 		/// 影片
 		/// </summary>
-		Move
+		Move,
+
+		/// <summary>
+		/// 配置文件
+		/// </summary>
+		Configuration
 	}
 
 	public partial class ResObjectManager : SingletonMonoClass<ResObjectManager>
@@ -229,7 +234,17 @@ namespace Game.Engine
 			}
 
 			string str = info.m_LoadType.ToString();
-			return str + "." + info.m_LoadName + ".prefab";
+			switch (info.m_LoadType)
+			{
+				case ResObjectType.Configuration:
+					str = str + "." + info.m_LoadName + ".xml";
+					break;
+				default:
+					str = str + "." + info.m_LoadName + ".prefab";
+					break;
+			}
+
+			return str;
 		}
 
 		private IEnumerator LoadYiedFunction()
@@ -344,8 +359,6 @@ namespace Game.Engine
 							GameObject mt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
 							oj = mt.GetComponent<MeshRenderer>().material;
 							break;
-						case ResObjectType.Move:
-							break;
 						case ResObjectType.Texture:
 							GameObject tt = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
 							oj = tt.GetComponent<MeshRenderer>().material.mainTexture;
@@ -353,6 +366,14 @@ namespace Game.Engine
 						case ResObjectType.UIPrefab:
 							GameObject up = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<GameObject>(info.m_LoadName);
 							oj = GameObject.Instantiate(up);
+							break;
+						case ResObjectType.Move:
+							UnityEngine.Object mv = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<UnityEngine.Object>(info.m_LoadName);
+							oj = mv;
+							break;
+						case ResObjectType.Configuration:
+							UnityEngine.Object cf = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<UnityEngine.Object>(info.m_LoadName);
+							oj = cf;
 							break;
 					}
 

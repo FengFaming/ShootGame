@@ -23,6 +23,14 @@ public class GameStart : ObjectBase
 
 	private void Update()
 	{
+		if (Input.GetKeyUp(KeyCode.A))
+		{
+			ResObjectCallBackBase cb = new ResObjectCallBackBase();
+			cb.m_LoadType = ResObjectType.Configuration;
+			cb.m_FinshFunction = Finsh;
+			ResObjectManager.Instance.LoadObject("110Move", ResObjectType.Configuration, cb);
+		}
+
 		//if (Input.GetKeyUp(KeyCode.A))
 		//{
 		//	ResObjectCallBackBase cb = new ResObjectCallBackBase();
@@ -46,7 +54,7 @@ public class GameStart : ObjectBase
 		//	}
 		//}
 
-		//if (Input.GetKeyDown(KeyCode.P))
+		if (Input.GetKeyDown(KeyCode.P))
 		{
 			if (Input.GetKeyUp(KeyCode.I))
 			{
@@ -88,6 +96,6 @@ public class GameStart : ObjectBase
 
 	private void Finsh(object o)
 	{
-
+		Debug.Log(o);
 	}
 }

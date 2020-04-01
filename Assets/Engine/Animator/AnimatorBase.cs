@@ -83,7 +83,16 @@ namespace Game.Engine
 
 		private void Awake()
 		{
-			m_ControlTarget = this.gameObject.GetComponent<Animator>();
+			InitAnimator(this.gameObject.GetComponent<Animator>());
+		}
+
+		/// <summary>
+		/// 初始化内容
+		/// </summary>
+		/// <param name="owner"></param>
+		public void InitAnimator(Animator owner)
+		{
+			m_ControlTarget = owner;
 			m_AllStateDic = new Dictionary<string, AnimationStateBase>();
 			m_AllStateDic.Clear();
 			if (m_ControlTarget != null)
@@ -110,6 +119,7 @@ namespace Game.Engine
 					clips[index].AddEvent(end);
 				}
 			}
+
 #if UNITY_EDITOR
 			m_AllParameters = new List<MyAnimatorParameters>();
 			m_AllParameters.Clear();

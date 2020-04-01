@@ -20,11 +20,22 @@ namespace Game.Engine
 		/// </summary>
 		public string StateName;
 
+		/// <summary>
+		/// 相互关联的状态
+		/// </summary>
+		protected AnimationStateBase m_LinkState;
+
+		/// <summary>
+		/// 进入状态
+		/// </summary>
 		public virtual void EnterState()
 		{
 
 		}
 
+		/// <summary>
+		/// 离开状态
+		/// </summary>
 		public virtual void ExitState()
 		{
 

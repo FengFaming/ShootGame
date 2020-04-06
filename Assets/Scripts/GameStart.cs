@@ -19,17 +19,32 @@ public class GameStart : ObjectBase
 	private void Start()
 	{
 		ResObjectManager.Instance.InitResManager("AB");
+
+		StartCoroutine("StartGame");
+	}
+
+	private IEnumerator StartGame()
+	{
+		yield return null;
+		yield return new WaitForSeconds(3);
+
+		UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Pnl);
 	}
 
 	private void Update()
 	{
-		if (Input.GetKeyUp(KeyCode.A))
-		{
-			ResObjectCallBackBase cb = new ResObjectCallBackBase();
-			cb.m_LoadType = ResObjectType.Configuration;
-			cb.m_FinshFunction = Finsh;
-			ResObjectManager.Instance.LoadObject("110Move", ResObjectType.Configuration, cb);
-		}
+		//if (Input.GetKeyUp(KeyCode.A))
+		//{
+		//	UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Pnl);
+		//}
+
+		//if (Input.GetKeyUp(KeyCode.A))
+		//{
+		//	ResObjectCallBackBase cb = new ResObjectCallBackBase();
+		//	cb.m_LoadType = ResObjectType.Configuration;
+		//	cb.m_FinshFunction = Finsh;
+		//	ResObjectManager.Instance.LoadObject("110Move", ResObjectType.Configuration, cb);
+		//}
 
 		//if (Input.GetKeyUp(KeyCode.A))
 		//{
@@ -46,13 +61,13 @@ public class GameStart : ObjectBase
 		//	Debug.Log(EngineTools.Instance.CheckIDCardSex(m_IDCard));
 		//}
 
-		//if (Input.GetKeyUp(KeyCode.O))
-		//{
-		//	for (int index = 0; index < m_UINames.Count; index++)
-		//	{
-		//		UIManager.Instance.OpenUI(m_UINames[index], m_Layer);
-		//	}
-		//}
+		if (Input.GetKeyUp(KeyCode.O))
+		{
+			for (int index = 0; index < m_UINames.Count; index++)
+			{
+				UIManager.Instance.OpenUI(m_UINames[index], m_Layer);
+			}
+		}
 
 		if (Input.GetKeyDown(KeyCode.P))
 		{

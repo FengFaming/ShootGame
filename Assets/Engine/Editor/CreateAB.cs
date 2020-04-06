@@ -381,7 +381,7 @@ public class CreateAB : EditorWindow
 
 			if (i.Name == "HashTab")
 			{
-				break;
+				continue;
 			}
 
 			File.Copy(f, save, true);

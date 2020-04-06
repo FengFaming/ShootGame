@@ -308,6 +308,18 @@ namespace Game.Engine
 							ab.m_UseCount = 0;
 							m_AllABInfoDic.Add(info.m_LoadName, ab);
 						}
+						else
+						{
+							Debug.LogError("the ab error." + info.m_LoadName);
+
+							ABInfo ab = new ABInfo();
+							ab.m_ABName = info.m_LoadName;
+							ab.m_IsDontClear = true;
+							ab.m_LastUseTime = (long)Time.time;
+							ab.m_TargetAB = null;
+							ab.m_UseCount = 0;
+							m_AllABInfoDic.Add(info.m_LoadName, ab);
+						}
 
 						if (m_AllABInfoDic.ContainsKey(info.m_LoadName))
 						{

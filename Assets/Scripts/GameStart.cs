@@ -26,9 +26,10 @@ public class GameStart : ObjectBase
 	private IEnumerator StartGame()
 	{
 		yield return null;
+		UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Pnl);
 		yield return new WaitForSeconds(3);
 
-		UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Pnl);
+		UIManager.Instance.OpenUI("UIPnlGameStart", UILayer.Pnl);
 	}
 
 	private void Update()

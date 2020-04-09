@@ -14,6 +14,8 @@ public class AnimatorTest : AnimatorBase
 {
 	int cout = 0;
 
+	private AfterimageControl c;
+
 	public void Update()
 	{
 		if (Input.GetKeyUp(KeyCode.Z))
@@ -29,6 +31,20 @@ public class AnimatorTest : AnimatorBase
 		if (Input.GetKeyUp(KeyCode.V))
 		{
 			ChangeParameter("Speed", cout++, AnimatorControllerParameterType.Int);
+		}
+
+		if (Input.GetKeyUp(KeyCode.R))
+		{
+			AfterimageControl ac = new AfterimageControl(this.gameObject,
+				typeof(IAfterimageMoveControl), Shader.Find("Standard"),
+				0.5f, 1);
+
+			c = ac;
+		}
+
+		if (c != null)
+		{
+			c.LateUpdate();
 		}
 	}
 }

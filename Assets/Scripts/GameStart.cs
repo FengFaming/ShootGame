@@ -19,8 +19,22 @@ public class GameStart : ObjectBase
 	private void Start()
 	{
 		ResObjectManager.Instance.InitResManager("AB");
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.CHANGE_SCENE_MESSAGE,
+						this.gameObject, OpenChangeScene);
 
 		StartCoroutine("StartGame");
+	}
+
+	private void OpenChangeScene(params object[] arms)
+	{
+		if ((bool)arms[0])
+		{
+			UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Blk);
+		}
+		else
+		{
+			UIManager.Instance.RecoveryUIModel("UIPnlFirstPanle", UILayer.Blk);
+		}
 	}
 
 	private IEnumerator StartGame()

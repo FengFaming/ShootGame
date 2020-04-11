@@ -321,6 +321,8 @@ namespace Game.Engine
 							m_AllABInfoDic.Add(info.m_LoadName, ab);
 						}
 
+						www.Dispose();
+
 						if (m_AllABInfoDic.ContainsKey(info.m_LoadName))
 						{
 							InitGameObject(info);

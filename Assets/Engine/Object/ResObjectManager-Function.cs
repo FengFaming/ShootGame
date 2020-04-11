@@ -35,6 +35,8 @@ namespace Game.Engine
 				m_AllABInfoDic.Add(info.m_ABName, info);
 				m_IsInitSuccess = true;
 			}
+
+			mani.Dispose();
 		}
 
 		/// <summary>
@@ -66,6 +68,36 @@ namespace Game.Engine
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// 清理内容
+		/// </summary>
+		public void ClearAll()
+		{
+			StopAllCoroutines();
+			m_NeedLoadInfos.Clear();
+			List<string> cs = new List<string>();
+			cs.Clear();
+			foreach (var info in m_AllABInfoDic)
+			{
+				if (!info.Value.m_IsDontClear)
+				{
+					cs.Add(info.Key);
+				}
+			}
+
+			if (cs.Count > 0)
+			{
+				for (int index = 0; index < cs.Count; index++)
+				{
+					ABInfo info = m_AllABInfoDic[cs[index]];
+					m_AllABInfoDic.Remove(cs[index]);
+					info.m_TargetAB.Unload(false);
+				}
+			}
+
+			m_IsLoad = false;
 		}
 
 		/// <summary>

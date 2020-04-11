@@ -175,8 +175,7 @@ namespace Game.Engine
 		/// </summary>
 		private void Update()
 		{
-			if (m_NeedUpdateUIs.Count > 0 &&
-							!m_IsClear)
+			if (m_NeedUpdateUIs.Count > 0 && !m_IsClear)
 			{
 				for (int index = 0; index < m_NeedUpdateUIs.Count;)
 				{
@@ -331,6 +330,7 @@ namespace Game.Engine
 				m_IsClear = true;
 			}
 
+			m_HasOpen = false;
 			m_ShowSequence.Clear();
 			m_NeedOpenUIs.Clear();
 			m_NeedUpdateUIs.Clear();
@@ -411,7 +411,7 @@ namespace Game.Engine
 		private void LoadCalBack(object t, IUIModelControl control,
 			List<string> others, IUIModelControl other)
 		{
-			if (m_IsClear)
+			if (m_IsClear && m_NeedOpenUIs.Count == 0)
 			{
 				m_IsClear = false;
 				m_HasOpen = false;

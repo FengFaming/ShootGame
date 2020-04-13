@@ -81,46 +81,13 @@ namespace Game.Engine
 		public List<MyAnimatorParameters> m_AllParameters;
 #endif
 
-		private void Awake()
-		{
-			InitAnimator(this.gameObject.GetComponent<Animator>());
-		}
-
+#if UNITY_EDITOR
 		/// <summary>
 		/// 初始化内容
 		/// </summary>
 		/// <param name="owner"></param>
 		public void InitAnimator(Animator owner)
 		{
-			m_ControlTarget = owner;
-			m_AllStateDic = new Dictionary<string, AnimationStateBase>();
-			m_AllStateDic.Clear();
-			if (m_ControlTarget != null)
-			{
-				AnimationClip[] clips = m_ControlTarget.runtimeAnimatorController.animationClips;
-				for (int index = 0; index < clips.Length; index++)
-				{
-					AnimationStateBase ab = new AnimationStateBase();
-					ab.StateName = clips[index].name;
-					m_AllStateDic.Add(ab.StateName, ab);
-
-					clips[index].events = default(AnimationEvent[]);
-					string name = clips[index].name;
-					AnimationEvent start = new AnimationEvent();
-					start.time = 0;
-					start.functionName = "StartAnimation";
-					start.stringParameter = name;
-					clips[index].AddEvent(start);
-
-					AnimationEvent end = new AnimationEvent();
-					end.time = clips[index].length;
-					end.functionName = "EndAnimation";
-					end.stringParameter = name;
-					clips[index].AddEvent(end);
-				}
-			}
-
-#if UNITY_EDITOR
 			m_AllParameters = new List<MyAnimatorParameters>();
 			m_AllParameters.Clear();
 			AnimatorControllerParameter[] acps = m_ControlTarget.parameters;
@@ -128,8 +95,8 @@ namespace Game.Engine
 			{
 				m_AllParameters.Add(new MyAnimatorParameters(acps[index]));
 			}
-#endif
 		}
+#endif
 
 		/// <summary>
 		/// 修改控制数据
@@ -192,29 +159,24 @@ namespace Game.Engine
 		/// <param name="events"></param>
 		public virtual void InitAnimationEvent(Dictionary<string, List<AnimationEventInfo>> events)
 		{
-			if (m_ControlTarget == null)
-			{
-				m_ControlTarget = this.gameObject.GetComponent<Animator>();
-			}
-
-			if (m_ControlTarget != null)
+			if (m_ControlTarget != null && events != null)
 			{
 				AnimationClip[] clips = m_ControlTarget.runtimeAnimatorController.animationClips;
 				for (int index = 0; index < clips.Length; index++)
 				{
-					clips[index].events = default(AnimationEvent[]);
-					string name = clips[index].name;
-					AnimationEvent start = new AnimationEvent();
-					start.time = 0;
-					start.functionName = "StartAnimation";
-					start.stringParameter = name;
-					clips[index].AddEvent(start);
+					//clips[index].events = default(AnimationEvent[]);
+					//string name = clips[index].name;
+					//AnimationEvent start = new AnimationEvent();
+					//start.time = 0;
+					//start.functionName = "StartAnimation";
+					//start.stringParameter = name;
+					//clips[index].AddEvent(start);
 
-					AnimationEvent end = new AnimationEvent();
-					end.time = clips[index].length;
-					end.functionName = "EndAnimation";
-					end.stringParameter = name;
-					clips[index].AddEvent(end);
+					//AnimationEvent end = new AnimationEvent();
+					//end.time = clips[index].length;
+					//end.functionName = "EndAnimation";
+					//end.stringParameter = name;
+					//clips[index].AddEvent(end);
 
 					if (events.ContainsKey(name))
 					{
@@ -231,20 +193,20 @@ namespace Game.Engine
 			}
 		}
 
-		public virtual void StartAnimation(string name)
-		{
-			if (m_AllStateDic.ContainsKey(name))
-			{
-				m_AllStateDic[name].EnterState();
-			}
-		}
+		//public virtual void StartAnimation(string name)
+		//{
+		//	if (m_AllStateDic.ContainsKey(name))
+		//	{
+		//		m_AllStateDic[name].EnterState();
+		//	}
+		//}
 
-		public virtual void EndAnimation(string name)
-		{
-			if (m_AllStateDic.ContainsKey(name))
-			{
-				m_AllStateDic[name].ExitState();
-			}
-		}
+		//public virtual void EndAnimation(string name)
+		//{
+		//	if (m_AllStateDic.ContainsKey(name))
+		//	{
+		//		m_AllStateDic[name].ExitState();
+		//	}
+		//}
 	}
 }

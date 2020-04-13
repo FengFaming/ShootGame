@@ -14,6 +14,8 @@ public class AnimationScene : IScene
 {
 	public class AnimationSceneControl : ObjectBase
 	{
+		private Action<float> m_LoadAction;
+
 		public void DestroyScene(Action<float> action)
 		{
 			StartCoroutine(StartDestroyScene(action));
@@ -21,40 +23,36 @@ public class AnimationScene : IScene
 
 		public void LoadScene(Action<float> action)
 		{
-			StartCoroutine("StartLoadScene", action);
+			m_LoadAction = action;
+
+			StartCoroutine("StartLoadScene");
 		}
 
-		private void CreateGameObject(int id)
+		private void CreateGameObject(object target)
 		{
-			GameObject go = new GameObject();
-			go.transform.position = Vector3.zero;
-			go.transform.eulerAngles = Vector3.zero;
-			go.transform.localScale = Vector3.one;
-			go.name = id.ToString();
+			GameObject go = target as GameObject;
+			if (go != null)
+			{
+				go.transform.position = new Vector3(0, -1, 0);
+				go.transform.eulerAngles = Vector3.zero;
+				go.transform.localScale = Vector3.one;
+			}
+
+			if (m_LoadAction != null)
+			{
+				m_LoadAction(100);
+			}
+
+			go.AddComponent<ElephentControl>();
 		}
 
-		private IEnumerator StartLoadScene(Action<float> action)
+		private IEnumerator StartLoadScene()
 		{
 			yield return null;
-			UIManager.Instance.OpenUI("UIPnlGameMain", UILayer.Pnl);
-			yield return new WaitForEndOfFrame();
-			yield return new WaitForFixedUpdate();
-
-			for (int index = 0; index < 1000; index++)
-			{
-				CreateGameObject(index);
-				if (action != null)
-				{
-					action((int)((index / 1000.0f) * 100));
-				}
-
-				yield return null;
-			}
-
-			if (action != null)
-			{
-				action(100);
-			}
+			ResObjectCallBackBase cb = new ResObjectCallBackBase();
+			cb.m_LoadType = ResObjectType.GameObject;
+			cb.m_FinshFunction = CreateGameObject;
+			ResObjectManager.Instance.LoadObject("elephant", ResObjectType.GameObject, cb);
 		}
 
 		private IEnumerator StartDestroyScene(Action<float> action)

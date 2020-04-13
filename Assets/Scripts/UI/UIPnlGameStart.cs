@@ -28,6 +28,6 @@ public class UIPnlGameStart : IUIModelControl
 
 	private void OnClickGameStart()
 	{
-		GameSceneManager.Instance.ChangeScene(new AnimationScene("animationscene"));
+		GameSceneManager.Instance.ChangeScene(new GameMainScene());
 	}
 }

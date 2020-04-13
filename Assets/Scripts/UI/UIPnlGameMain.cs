@@ -30,7 +30,12 @@ public class UIPnlGameMain : IUIModelControl
 
 	private void OnClickAnimation(int tage)
 	{
-		Debug.Log(tage);
+		switch (tage)
+		{
+			case 1:
+				GameSceneManager.Instance.ChangeScene(new AnimationScene("animationscene"));
+				break;
+		}
 	}
 
 	public override bool GetCloseOther(ref List<string> others)

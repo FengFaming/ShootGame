@@ -41,7 +41,7 @@ public class GameStart : ObjectBase
 	{
 		yield return null;
 		UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Pnl);
-		yield return new WaitForSeconds(3);
+		yield return new WaitForSeconds(0.5f);
 
 		UIManager.Instance.OpenUI("UIPnlGameStart", UILayer.Pnl);
 	}

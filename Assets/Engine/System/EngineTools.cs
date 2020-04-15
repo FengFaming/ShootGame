@@ -48,6 +48,18 @@ namespace Game.Engine
 			return 0;
 		}
 
+		/// <summary>
+		/// 获取朝向旋转角度
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="start"></param>
+		/// <returns></returns>
+		public Quaternion GetLookAtQuatrnion(Vector3 target, Vector3 start)
+		{
+			Vector3 f = target - start;
+			return Quaternion.LookRotation(f);
+		}
+
 		private bool CheckIDCard18(string id)
 		{
 			long n = 0;

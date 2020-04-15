@@ -46,13 +46,33 @@ public class AnimationScene : IScene
 			go.AddComponent<ElephentControl>();
 		}
 
+		private void CreateCharacter()
+		{
+			GameObject go = new GameObject();
+			go.name = "Player";
+			go.transform.position = Vector3.zero;
+			go.transform.rotation = Quaternion.Euler(Vector3.zero);
+			go.transform.localScale = Vector3.one;
+			AnimationPlayer ch = go.AddComponent<AnimationPlayer>();
+			ch.StartInitCharacter("elephant", GetCharacter);
+		}
+
+		private void GetCharacter(object t)
+		{
+			m_LoadAction(100);
+			AnimationPlayer ch = t as AnimationPlayer;
+			ch.InitCharacter();
+			ch.SetCameraTra(new Vector3(0, 2, -10), Vector3.zero, Vector3.one);
+		}
+
 		private IEnumerator StartLoadScene()
 		{
 			yield return null;
-			ResObjectCallBackBase cb = new ResObjectCallBackBase();
-			cb.m_LoadType = ResObjectType.GameObject;
-			cb.m_FinshFunction = CreateGameObject;
-			ResObjectManager.Instance.LoadObject("elephant", ResObjectType.GameObject, cb);
+			CreateCharacter();
+			//ResObjectCallBackBase cb = new ResObjectCallBackBase();
+			//cb.m_LoadType = ResObjectType.GameObject;
+			//cb.m_FinshFunction = CreateGameObject;
+			//ResObjectManager.Instance.LoadObject("elephant", ResObjectType.GameObject, cb);
 		}
 
 		private IEnumerator StartDestroyScene(Action<float> action)

@@ -20,14 +20,4 @@ public class ElephentControl : AnimatorBase
 			m_ControlTarget = at;
 		}
 	}
-
-	private void OnMouseEnter()
-	{
-		Debug.Log("enter");
-	}
-
-	private void OnMouseExit()
-	{
-		Debug.Log("exit");
-	}
 }

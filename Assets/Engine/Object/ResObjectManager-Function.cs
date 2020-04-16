@@ -9,6 +9,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR && !TEST_AB
+using UnityEditor;
+#endif
+
 namespace Game.Engine
 {
 	public partial class ResObjectManager : SingletonMonoClass<ResObjectManager>
@@ -108,6 +112,36 @@ namespace Game.Engine
 		/// <param name="cb"></param>
 		public void LoadObject(string name, ResObjectType type, IResObjectCallBack cb)
 		{
+#if UNITY_EDITOR && !TEST_AB
+			LoadResObjectInfo info = new LoadResObjectInfo();
+			info.m_LoadCB.Add(cb);
+			info.m_LoadName = name;
+			info.m_LoadType = type;
+			string str = "Assets/UseAB/" + info.m_LoadType.ToString();
+			switch (info.m_LoadType)
+			{
+				case ResObjectType.Configuration:
+					str = str + "/" + info.m_LoadName + ".xml";
+					break;
+				default:
+					str = str + "/" + info.m_LoadName + ".prefab";
+					break;
+			}
+
+			UnityEngine.Object oj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(str);
+			if (oj == null)
+			{
+				Debug.Log("the res is null." + info);
+				return;
+			}
+
+			if (cb != null)
+			{
+				UnityEngine.Object target = UnityEngine.Object.Instantiate(oj);
+				cb.HandleLoadCallBack(target);
+			}
+#else
+
 			if (m_IsInitSuccess)
 			{
 				LoadResObjectInfo info = new LoadResObjectInfo();
@@ -136,6 +170,7 @@ namespace Game.Engine
 					StartCoroutine("LoadYiedFunction");
 				}
 			}
+#endif
 		}
 	}
 }

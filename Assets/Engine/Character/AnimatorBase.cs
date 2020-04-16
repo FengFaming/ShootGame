@@ -79,9 +79,26 @@ namespace Game.Engine
 		/// 所有的控制条件
 		/// </summary>
 		public List<MyAnimatorParameters> m_AllParameters;
+
+		/// <summary>
+		/// 更新节点时间
+		/// </summary>
+		private float m_UpdateTime;
 #endif
 
 #if UNITY_EDITOR
+		private void Awake()
+		{
+			m_UpdateTime = 0f;
+
+			Animator at = this.gameObject.GetComponentInChildren<Animator>();
+			if (at != null)
+			{
+				m_ControlTarget = at;
+				InitAnimator(at);
+			}
+		}
+
 		/// <summary>
 		/// 初始化内容
 		/// </summary>
@@ -96,6 +113,50 @@ namespace Game.Engine
 				m_AllParameters.Add(new MyAnimatorParameters(acps[index]));
 			}
 		}
+
+		private void Update()
+		{
+			if (m_UpdateTime <= 0)
+			{
+				ChangeView();
+			}
+			else
+			{
+				m_UpdateTime -= Time.deltaTime;
+				if (m_UpdateTime <= 0)
+				{
+					m_UpdateTime = 1f;
+				}
+			}
+		}
+
+		private void ChangeView()
+		{
+			for (int index = 0; index < m_AllParameters.Count; index++)
+			{
+				switch (m_AllParameters[index].type)
+				{
+					case AnimatorControllerParameterType.Bool:
+						m_AllParameters[index].defaultBool = m_ControlTarget.GetBool(m_AllParameters[index].name);
+						break;
+					case AnimatorControllerParameterType.Trigger:
+						m_AllParameters[index].defaultBool = m_ControlTarget.GetBool(m_AllParameters[index].name);
+						break;
+					case AnimatorControllerParameterType.Float:
+						m_AllParameters[index].defaultFloat = m_ControlTarget.GetFloat(m_AllParameters[index].name);
+						break;
+					case AnimatorControllerParameterType.Int:
+						m_AllParameters[index].defaultInt = m_ControlTarget.GetInteger(m_AllParameters[index].name);
+						break;
+				}
+			}
+
+			if (Selection.activeGameObject != null)
+			{
+				///主动刷新选中物体
+				EditorUtility.SetDirty(Selection.activeGameObject);
+			}
+		}
 #endif
 
 		/// <summary>
@@ -106,50 +167,8 @@ namespace Game.Engine
 		/// <param name="type"></param>
 		public virtual void ChangeParameter(string name, object value, AnimatorControllerParameterType type = AnimatorControllerParameterType.Bool)
 		{
-			switch (type)
-			{
-				case AnimatorControllerParameterType.Bool:
-					m_ControlTarget.SetBool(name, (bool)value);
-					break;
-				case AnimatorControllerParameterType.Trigger:
-					m_ControlTarget.SetBool(name, (bool)value);
-					break;
-				case AnimatorControllerParameterType.Float:
-					m_ControlTarget.SetFloat(name, (float)value);
-					break;
-				case AnimatorControllerParameterType.Int:
-					m_ControlTarget.SetInteger(name, (int)value);
-					break;
-			}
-
 #if UNITY_EDITOR
-			for (int index = 0; index < m_AllParameters.Count; index++)
-			{
-				if (m_AllParameters[index].name == name)
-				{
-					switch (m_AllParameters[index].type)
-					{
-						case AnimatorControllerParameterType.Bool:
-							m_AllParameters[index].defaultBool = (bool)value;
-							break;
-						case AnimatorControllerParameterType.Trigger:
-							m_AllParameters[index].defaultBool = (bool)value;
-							break;
-						case AnimatorControllerParameterType.Float:
-							m_AllParameters[index].defaultFloat = (float)value;
-							break;
-						case AnimatorControllerParameterType.Int:
-							m_AllParameters[index].defaultInt = (int)value;
-							break;
-					}
-				}
-			}
-
-			if (Selection.activeGameObject != null)
-			{
-				///主动刷新选中物体
-				EditorUtility.SetDirty(Selection.activeGameObject);
-			}
+			ChangeView();
 #endif
 		}
 
@@ -192,21 +211,5 @@ namespace Game.Engine
 				}
 			}
 		}
-
-		//public virtual void StartAnimation(string name)
-		//{
-		//	if (m_AllStateDic.ContainsKey(name))
-		//	{
-		//		m_AllStateDic[name].EnterState();
-		//	}
-		//}
-
-		//public virtual void EndAnimation(string name)
-		//{
-		//	if (m_AllStateDic.ContainsKey(name))
-		//	{
-		//		m_AllStateDic[name].ExitState();
-		//	}
-		//}
 	}
 }

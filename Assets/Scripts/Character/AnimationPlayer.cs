@@ -12,6 +12,8 @@ using Game.Engine;
 
 public class AnimationPlayer : GameCharacterBase
 {
+	private Rigidbody m_ControlRigidbody;
+
 	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null, GameCharacterAttributeBase gameCharacterAttributeBase = null, GameCharacterAnimatorBase animatorBase = null)
 	{
 		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase);
@@ -19,14 +21,94 @@ public class AnimationPlayer : GameCharacterBase
 		BoxCollider bvc = this.gameObject.AddComponent<BoxCollider>();
 		bvc.center = bc.center;
 		bvc.size = bc.size;
-
 		GameObject.DestroyImmediate(bc);
 
-		this.gameObject.AddComponent<AnimatorBase>();
+		Rigidbody rb = this.gameObject.GetComponentInChildren<Rigidbody>();
+		Rigidbody n = this.gameObject.AddComponent<Rigidbody>();
+		EngineTools.Instance.CopyRigidbody(rb, ref n);
+		GameObject.DestroyImmediate(rb);
 
+		m_ControlRigidbody = n;
+
+		this.gameObject.AddComponent<AnimatorBase>();
 		GameMouseInputManager.Instance.SetMouseListen(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER, 5);
 		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER,
 			new IMessageBase(this.gameObject, false, ListenMouse));
+
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.A,
+			new IMessageBase(this.gameObject, false, ListenKey));
+
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.D,
+			new IMessageBase(this.gameObject, false, ListenKey));
+
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.W,
+			new IMessageBase(this.gameObject, false, ListenKey));
+
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.S,
+			new IMessageBase(this.gameObject, false, ListenKey));
+	}
+
+	private void ListenKey(params object[] arms)
+	{
+		GameMouseInputManager.KeyInfo info = (GameMouseInputManager.KeyInfo)arms[0];
+		Vector3 focale = Vector3.zero;
+		if (info.m_KeyState == GameMouseInputManager.KeyState.KeyStay)
+		{
+			if (info.m_KeyCode == KeyCode.A)
+			{
+				focale.x = -2;
+			}
+
+			if (info.m_KeyCode == KeyCode.D)
+			{
+				focale.x = 2;
+			}
+
+			if (info.m_KeyCode == KeyCode.W)
+			{
+				focale.z = 2;
+			}
+
+			if (info.m_KeyCode == KeyCode.S)
+			{
+				focale.z = -2;
+			}
+
+			MoveControl(focale);
+		}
+
+		if (info.m_KeyState == GameMouseInputManager.KeyState.KeyUp)
+		{
+			if (focale == Vector3.zero)
+			{
+				if (m_ControlRigidbody != null)
+				{
+					m_ControlRigidbody.velocity = focale;
+				}
+
+				m_CharacterAnimator.ChangeParameter("IsWalk", false);
+				m_CharacterAnimator.ChangeParameter("IsRun", false);
+			}
+		}
+	}
+
+	private void MoveControl(Vector3 sp)
+	{
+		GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
+		if (move == null)
+		{
+			move = this.gameObject.AddComponent<GameObjectMoveControl>();
+		}
+
+		Quaternion q = Quaternion.LookRotation(sp);
+		move.SetRotation(q, 0.1f);
+
+		if (m_ControlRigidbody != null)
+		{
+			m_ControlRigidbody.velocity = sp;
+			m_CharacterAnimator.ChangeParameter("IsWalk", true);
+			m_CharacterAnimator.ChangeParameter("IsRun", false);
+		}
 	}
 
 	private void ListenMouse(params object[] arms)

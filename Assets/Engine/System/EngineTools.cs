@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Game.Engine
 {
-	public class EngineTools : Singleton<EngineTools>
+	public partial class EngineTools : Singleton<EngineTools>
 	{
 		/// <summary>
 		/// 检查身份证号码是否符合
@@ -60,51 +60,56 @@ namespace Game.Engine
 			return Quaternion.LookRotation(f);
 		}
 
-		private bool CheckIDCard18(string id)
+		/// <summary>
+		/// 创建矩阵内容
+		/// </summary>
+		/// <param name="parent">父亲节点</param>
+		/// <param name="clone">克隆体</param>
+		/// <param name="length">距离</param>
+		/// <param name="c">多上层</param>
+		public void CreateRect(Transform parent, GameObject clone, float length, int c)
 		{
-			long n = 0;
-			if (long.TryParse(id.Remove(17), out n) == false ||
-				n < Math.Pow(10, 16) ||
-				long.TryParse(id.Replace('x', '0').Replace('X', '0'), out n) == false)
-			{
-				///里面包含非数字或者首位不大于零
-				return false;
-			}
+			Vector3 leftPosition = Vector3.zero;
+			leftPosition.x = 0 - length * c;
+			leftPosition.z = length * c;
+			clone.gameObject.transform.parent = parent;
+			clone.gameObject.transform.localPosition = leftPosition;
+			clone.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			clone.gameObject.transform.localScale = Vector3.one;
 
-			string address = "11x22x35x44x53x12x23x36x45x54x13x31x37x46x61x14x32x41x50x62x15x33x42x51x63x21x34x43x52x64x65x71x81x82x91";
-			if (address.IndexOf(id.Remove(2)) == -1)
+			for (int width = 0; width < c * 2; width++)
 			{
-				///省份验证不通过
-				return false;
+				for (int height = 0; height < c * 2; height++)
+				{
+					if (width == 0 && height == 0)
+					{
+						continue;
+					}
+					else
+					{
+						Vector3 position = new Vector3(length * height, 0, -length * width);
+						position += leftPosition;
+						SetGameObject(parent, clone, position);
+					}
+				}
 			}
+		}
 
-			string birth = id.Substring(6, 8).Insert(6, "-").Insert(4, "-");
-			DateTime time = new DateTime();
-			if (DateTime.TryParse(birth, out time) == false)
-			{
-				///生日验证不通过
-				return false;
-			}
-
-			string[] arrvarifycode = ("1,0,x,9,8,7,6,5,4,3,2").Split(',');
-			string[] wi = ("7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2").Split(',');
-			char[] ai = id.Remove(17).ToCharArray();
-			int sum = 0;
-			for (int index = 0; index < 17; index++)
-			{
-				sum += int.Parse(wi[index]) * int.Parse(ai[index].ToString());
-			}
-
-			int y = -1;
-			Math.DivRem(sum, 11, out y);
-			if (arrvarifycode[y] != id.Substring(17, 1).ToLower())
-			{
-				///校验码不正确
-				return false;
-			}
-
-			///身份证符合GB1643-1999标准
-			return true;
+		/// <summary>
+		/// 拷贝rigidbody
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="n"></param>
+		public void CopyRigidbody(Rigidbody target, ref Rigidbody n)
+		{
+			n.mass = target.mass;
+			n.drag = target.drag;
+			n.angularDrag = target.angularDrag;
+			n.useGravity = target.useGravity;
+			n.isKinematic = target.isKinematic;
+			n.interpolation = target.interpolation;
+			n.collisionDetectionMode = target.collisionDetectionMode;
+			n.constraints = target.constraints;
 		}
 	}
 }

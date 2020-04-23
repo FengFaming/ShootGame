@@ -99,6 +99,48 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 按键状态
+		/// </summary>
+		public enum KeyState
+		{
+			/// <summary>
+			/// 按键按下
+			/// </summary>
+			KeyDown,
+
+			/// <summary>
+			/// 按下维持
+			/// </summary>
+			KeyStay,
+
+			/// <summary>
+			/// 按键弹起
+			/// </summary>
+			KeyUp,
+		}
+
+		/// <summary>
+		/// 按键的事件结合
+		/// </summary>
+		public struct KeyInfo
+		{
+			/// <summary>
+			/// 按键
+			/// </summary>
+			public KeyCode m_KeyCode;
+
+			/// <summary>
+			/// 按键状态
+			/// </summary>
+			public KeyState m_KeyState;
+
+			/// <summary>
+			/// 按键按下的时间
+			/// </summary>
+			public float m_DownTime;
+		}
+
+		/// <summary>
 		/// 是否开启鼠标监听
 		/// </summary>
 		private bool m_ListenMouse;
@@ -238,6 +280,76 @@ namespace Game.Engine
 		}
 
 		private void Update()
+		{
+			ListenMouse();
+			ListenKey();
+		}
+
+		/// <summary>
+		/// 监听按键
+		/// </summary>
+		private void ListenKey()
+		{
+			///f1 - f15
+			for (int index = 282; index < 297; index++)
+			{
+				KeyInput(index);
+			}
+
+			for (int index = 97; index < 122; index++)
+			{
+				KeyInput(index);
+			}
+
+			///ESC
+			KeyInput(27);
+
+			//Tab
+			KeyInput((int)(KeyCode.Tab));
+
+			//Enter
+			KeyInput((int)(KeyCode.Return));
+			KeyInput((int)(KeyCode.KeypadEnter));
+
+			//Space
+			KeyInput((int)KeyCode.Space);
+		}
+
+		/// <summary>
+		/// 设置按键监听状态
+		/// </summary>
+		private void SetKeyCodeListenEvent(KeyState state, int key)
+		{
+			KeyInfo info = new KeyInfo();
+			info.m_KeyState = state;
+			info.m_KeyCode = (KeyCode)key;
+			info.m_DownTime = Time.time;
+			string head = EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + key;
+			MessageManger.Instance.SendMessage(head, info);
+		}
+
+		private void KeyInput(int index)
+		{
+			if (Input.GetKeyDown((KeyCode)index))
+			{
+				SetKeyCodeListenEvent(KeyState.KeyDown, index);
+			}
+
+			if (Input.GetKey((KeyCode)index))
+			{
+				SetKeyCodeListenEvent(KeyState.KeyStay, index);
+			}
+
+			if (Input.GetKeyUp((KeyCode)index))
+			{
+				SetKeyCodeListenEvent(KeyState.KeyUp, index);
+			}
+		}
+
+		/// <summary>
+		/// 监听鼠标
+		/// </summary>
+		private void ListenMouse()
 		{
 			if (m_ListenMouse)
 			{

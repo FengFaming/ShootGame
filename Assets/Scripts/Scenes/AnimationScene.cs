@@ -16,6 +16,8 @@ public class AnimationScene : IScene
 	{
 		private Action<float> m_LoadAction;
 
+		private int m_LoadCont;
+
 		public void DestroyScene(Action<float> action)
 		{
 			StartCoroutine(StartDestroyScene(action));
@@ -24,6 +26,7 @@ public class AnimationScene : IScene
 		public void LoadScene(Action<float> action)
 		{
 			m_LoadAction = action;
+			m_LoadCont = 0;
 
 			StartCoroutine("StartLoadScene");
 		}
@@ -59,25 +62,57 @@ public class AnimationScene : IScene
 
 		private void GetCharacter(object t)
 		{
-			m_LoadAction(100);
+			m_LoadCont++;
+			m_LoadAction(m_LoadCont / 7 * 100);
 			AnimationPlayer ch = t as AnimationPlayer;
 			ch.InitCharacter();
 			ch.SetCameraTra(new Vector3(0, 2, -10), Vector3.zero, Vector3.one);
+		}
+
+		private void Nomalize(GameObject go, Vector3 position, Vector3 rotation, Vector3 scale)
+		{
+			go.gameObject.transform.position = position;
+			go.gameObject.transform.rotation = Quaternion.Euler(rotation);
+			go.gameObject.transform.localScale = scale;
+		}
+
+		private void GetGrass(object t)
+		{
+			GameObject go = t as GameObject;
+			GameObject parent = new GameObject();
+			parent.name = "garss";
+			Nomalize(parent, Vector3.zero, Vector3.zero, Vector3.one);
+			EngineTools.Instance.CreateRect(parent.transform, go, 3, 5);
+			m_LoadCont++;
+			m_LoadAction(m_LoadCont / 7 * 100);
+		}
+
+		private void CreateGrass()
+		{
+			ResObjectCallBackBase cb = new ResObjectCallBackBase();
+			cb.m_FinshFunction = GetGrass;
+			cb.m_LoadType = ResObjectType.GameObject;
+			ResObjectManager.Instance.LoadObject("grass", ResObjectType.GameObject, cb);
 		}
 
 		private IEnumerator StartLoadScene()
 		{
 			yield return null;
 			CreateCharacter();
-			//ResObjectCallBackBase cb = new ResObjectCallBackBase();
-			//cb.m_LoadType = ResObjectType.GameObject;
-			//cb.m_FinshFunction = CreateGameObject;
-			//ResObjectManager.Instance.LoadObject("elephant", ResObjectType.GameObject, cb);
+			yield return null;
+			for (int index = 0; index < 6; index++)
+			{
+				CreateGrass();
+				yield return new WaitForEndOfFrame();
+				yield return new WaitForFixedUpdate();
+			}
 		}
 
 		private IEnumerator StartDestroyScene(Action<float> action)
 		{
 			yield return null;
+			m_LoadCont = 0;
+			action(100);
 		}
 	}
 

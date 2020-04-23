@@ -29,5 +29,6 @@ namespace Game.Engine
 		/// 鼠标监听
 		/// </summary>
 		public static readonly string LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER = "LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER";
+		public static readonly string LISTEN_KEY_EVENT_FOR_INPUT_MANAGER = "LISTEN_KEY_EVENT_FOR_INPUT_MANAGER";
 	}
 }

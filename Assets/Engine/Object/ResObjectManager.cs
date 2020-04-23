@@ -1,3 +1,5 @@
+#pragma warning disable 0414
+#pragma warning disable 0618
 /*
  * Creator:ffm
  * Desc:游戏对象加载管理类

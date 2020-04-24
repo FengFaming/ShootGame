@@ -14,9 +14,44 @@ public class AnimationScene : IScene
 {
 	public class AnimationSceneControl : ObjectBase
 	{
+		public class LoadGrass : IResObjectCallBack
+		{
+			public Vector3 m_Position;
+			public Vector3 m_Rotation;
+			public Vector3 m_LocalScale;
+			public GameObject m_Parent;
+
+			public Action<object, Vector3, Vector3, Vector3, GameObject> m_LoadEnd;
+
+			public LoadGrass() : base()
+			{
+
+			}
+
+			public override void HandleLoadCallBack(object t)
+			{
+				if (m_LoadEnd != null)
+				{
+					m_LoadEnd(t, m_Position, m_Rotation, m_LocalScale, m_Parent);
+				}
+			}
+
+			public override int LoadCallbackPriority()
+			{
+				return 0;
+			}
+		}
+
 		private Action<float> m_LoadAction;
 
+		private int m_MaxLoadCont;
 		private int m_LoadCont;
+
+		private void Awake()
+		{
+			m_MaxLoadCont = 101;
+			m_LoadCont = 0;
+		}
 
 		public void DestroyScene(Action<float> action)
 		{
@@ -29,24 +64,6 @@ public class AnimationScene : IScene
 			m_LoadCont = 0;
 
 			StartCoroutine("StartLoadScene");
-		}
-
-		private void CreateGameObject(object target)
-		{
-			GameObject go = target as GameObject;
-			if (go != null)
-			{
-				go.transform.position = new Vector3(0, -1, 0);
-				go.transform.eulerAngles = Vector3.zero;
-				go.transform.localScale = Vector3.one;
-			}
-
-			if (m_LoadAction != null)
-			{
-				m_LoadAction(100);
-			}
-
-			go.AddComponent<ElephentControl>();
 		}
 
 		private void CreateCharacter()
@@ -63,36 +80,21 @@ public class AnimationScene : IScene
 		private void GetCharacter(object t)
 		{
 			m_LoadCont++;
-			m_LoadAction(m_LoadCont / 7 * 100);
+			m_LoadAction((m_LoadCont / (float)m_MaxLoadCont) * 100);
 			AnimationPlayer ch = t as AnimationPlayer;
 			ch.InitCharacter();
 			ch.SetCameraTra(new Vector3(0, 2, -10), Vector3.zero, Vector3.one);
 		}
 
-		private void Nomalize(GameObject go, Vector3 position, Vector3 rotation, Vector3 scale)
+		private void LoadGrassEnd(object t, Vector3 p, Vector3 r, Vector3 s, GameObject g)
 		{
-			go.gameObject.transform.position = position;
-			go.gameObject.transform.rotation = Quaternion.Euler(rotation);
-			go.gameObject.transform.localScale = scale;
-		}
-
-		private void GetGrass(object t)
-		{
-			GameObject go = t as GameObject;
-			GameObject parent = new GameObject();
-			parent.name = "garss";
-			Nomalize(parent, Vector3.zero, Vector3.zero, Vector3.one);
-			EngineTools.Instance.CreateRect(parent.transform, go, 3, 5);
 			m_LoadCont++;
-			m_LoadAction(m_LoadCont / 7 * 100);
-		}
-
-		private void CreateGrass()
-		{
-			ResObjectCallBackBase cb = new ResObjectCallBackBase();
-			cb.m_FinshFunction = GetGrass;
-			cb.m_LoadType = ResObjectType.GameObject;
-			ResObjectManager.Instance.LoadObject("grass", ResObjectType.GameObject, cb);
+			GameObject go = t as GameObject;
+			go.transform.parent = g.transform;
+			go.transform.localPosition = p;
+			go.transform.localRotation = Quaternion.Euler(r);
+			go.transform.localScale = s;
+			m_LoadAction((m_LoadCont / (float)m_MaxLoadCont) * 100);
 		}
 
 		private IEnumerator StartLoadScene()
@@ -100,11 +102,27 @@ public class AnimationScene : IScene
 			yield return null;
 			CreateCharacter();
 			yield return null;
-			for (int index = 0; index < 6; index++)
+
+			GameObject parent = new GameObject();
+			parent.name = "garss";
+			parent.gameObject.transform.position = Vector3.zero;
+			parent.gameObject.transform.rotation = Quaternion.Euler(Vector3.zero);
+			parent.gameObject.transform.localScale = Vector3.one;
+			Vector3 start = new Vector3(-15, 0, 15);
+			for (int i = 0; i < 10; i++)
 			{
-				CreateGrass();
-				yield return new WaitForEndOfFrame();
-				yield return new WaitForFixedUpdate();
+				for (int j = 0; j < 10; j++)
+				{
+					LoadGrass loadGrass = new LoadGrass();
+					loadGrass.m_LocalScale = Vector3.one;
+					loadGrass.m_Rotation = Vector3.zero;
+					Vector3 position = start + new Vector3(3 * i, 0, -3 * j);
+					loadGrass.m_Position = position;
+					loadGrass.m_Parent = parent;
+					loadGrass.m_LoadEnd = LoadGrassEnd;
+					ResObjectManager.Instance.LoadObject("grass", ResObjectType.GameObject, loadGrass);
+					yield return null;
+				}
 			}
 		}
 

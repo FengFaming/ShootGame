@@ -32,7 +32,6 @@ namespace Game.Engine
 		/// </summary>
 		protected virtual void OnMouseDown()
 		{
-			Debug.Log("mouse down:" + this.name);
 		}
 
 		/// <summary>
@@ -40,7 +39,6 @@ namespace Game.Engine
 		/// </summary>
 		protected virtual void OnMouseUp()
 		{
-			Debug.Log("mouse up:" + this.name);
 		}
 
 		/// <summary>
@@ -48,7 +46,6 @@ namespace Game.Engine
 		/// </summary>
 		protected virtual void OnMouseEnter()
 		{
-			Debug.Log("mouse enter:" + this.name);
 		}
 
 		/// <summary>
@@ -56,7 +53,6 @@ namespace Game.Engine
 		/// </summary>
 		protected virtual void OnMouseExit()
 		{
-			Debug.Log("mouse exit:" + this.name);
 		}
 
 		/// <summary>
@@ -65,7 +61,6 @@ namespace Game.Engine
 		/// </summary>
 		protected virtual void OnMouseUpAsButton()
 		{
-			Debug.Log("mouse destroy:" + this.name);
 		}
 	}
 

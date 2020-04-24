@@ -18,6 +18,7 @@ namespace Game.Engine
 		///		true:false
 		/// </summary>
 		public static readonly string CHANGE_SCENE_MESSAGE = "CHANGE_SCENE_MESSAGE";
+		public static readonly string CHANGE_SCENE_PRESS_VALUE = "CHANGE_SCENE_PRESS_VALUE";
 
 		/// <summary>
 		/// 发送属性修改

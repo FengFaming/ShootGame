@@ -91,11 +91,11 @@ namespace Game.Engine
 			MessageManger.Instance.SendMessage(EngineMessageHead.CHANGE_SCENE_MESSAGE, true);
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForFixedUpdate();
-			m_ChangePress = 0.1f;
+			ChangePressValue(0.1f);
 
 			AsyncOperation asy = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(1);
 			yield return asy;
-			m_ChangePress = 0.2f;
+			ChangePressValue(0.2f);
 			yield return null;
 
 			if (m_LastScene == null)
@@ -115,19 +115,19 @@ namespace Game.Engine
 		private IEnumerator LoadTarget()
 		{
 			yield return null;
-			m_ChangePress = 0.4f;
+			ChangePressValue(0.4f);
 
 			//把这个内容提到这个位置，是因为打开界面的时候不能清空资源
 			ResObjectManager.Instance.ClearAll();
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForFixedUpdate();
-			m_ChangePress = 0.5f;
+			ChangePressValue(0.5f);
 
 			AsyncOperation asyt = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(2);
 			yield return asyt;
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForFixedUpdate();
-			m_ChangePress = 0.6f;
+			ChangePressValue(0.6f);
 
 			m_Current.InitScene();
 			yield return new WaitForEndOfFrame();
@@ -144,13 +144,13 @@ namespace Game.Engine
 		{
 			if (process == 100)
 			{
-				m_ChangePress = 1;
+				ChangePressValue(1);
 				MessageManger.Instance.SendMessage(EngineMessageHead.CHANGE_SCENE_MESSAGE, false);
 				m_IsChangeScene = false;
 			}
 			else
 			{
-				m_ChangePress = 0.6f + 0.004f * process;
+				ChangePressValue(0.6f + 0.004f * process);
 			}
 		}
 
@@ -166,8 +166,23 @@ namespace Game.Engine
 			}
 			else
 			{
-				m_ChangePress = 0.2f + 0.002f * process;
+				ChangePressValue(0.2f + 0.002f * process);
 			}
+		}
+
+		/// <summary>
+		/// 修改加载进度
+		/// </summary>
+		/// <param name="value"></param>
+		private void ChangePressValue(float value)
+		{
+			m_ChangePress = value;
+			if (value == 1)
+			{
+				Debug.Log(m_ChangePress);
+			}
+
+			MessageManger.Instance.SendMessage(EngineMessageHead.CHANGE_SCENE_PRESS_VALUE, m_ChangePress);
 		}
 	}
 }

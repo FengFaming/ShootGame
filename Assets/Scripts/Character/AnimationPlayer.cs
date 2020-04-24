@@ -31,9 +31,9 @@ public class AnimationPlayer : GameCharacterBase
 		m_ControlRigidbody = n;
 
 		this.gameObject.AddComponent<AnimatorBase>();
-		GameMouseInputManager.Instance.SetMouseListen(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER, 5);
-		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER,
-			new IMessageBase(this.gameObject, false, ListenMouse));
+		//GameMouseInputManager.Instance.SetMouseListen(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER, 5);
+		//MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER,
+		//	new IMessageBase(this.gameObject, false, ListenMouse));
 
 		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.A,
 			new IMessageBase(this.gameObject, false, ListenKey));
@@ -56,22 +56,22 @@ public class AnimationPlayer : GameCharacterBase
 		{
 			if (info.m_KeyCode == KeyCode.A)
 			{
-				focale.x = -2;
+				focale.x = -1;
 			}
 
 			if (info.m_KeyCode == KeyCode.D)
 			{
-				focale.x = 2;
+				focale.x = 1;
 			}
 
 			if (info.m_KeyCode == KeyCode.W)
 			{
-				focale.z = 2;
+				focale.z = 1;
 			}
 
 			if (info.m_KeyCode == KeyCode.S)
 			{
-				focale.z = -2;
+				focale.z = -1;
 			}
 
 			MoveControl(focale);
@@ -111,70 +111,52 @@ public class AnimationPlayer : GameCharacterBase
 		}
 	}
 
-	private void ListenMouse(params object[] arms)
-	{
-		GameMouseInputManager.ListenEvent le = (GameMouseInputManager.ListenEvent)arms[0];
+	//private void ListenMouse(params object[] arms)
+	//{
+	//	GameMouseInputManager.ListenEvent le = (GameMouseInputManager.ListenEvent)arms[0];
 
-		if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_0_Up)
-		{
-			Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
-			Vector3 f = target - this.gameObject.transform.position;
-			Quaternion qt = Quaternion.LookRotation(f);
-			//this.gameObject.transform.rotation = qt;
-			GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
-			if (move == null)
-			{
-				move = this.gameObject.AddComponent<GameObjectMoveControl>();
-			}
+	//	if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_0_Up)
+	//	{
+	//		Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
+	//		Vector3 f = target - this.gameObject.transform.position;
+	//		Quaternion qt = Quaternion.LookRotation(f);
+	//		//this.gameObject.transform.rotation = qt;
+	//		GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
+	//		if (move == null)
+	//		{
+	//			move = this.gameObject.AddComponent<GameObjectMoveControl>();
+	//		}
 
-			m_CharacterAnimator.ChangeParameter("IsWalk", true);
-			m_CharacterAnimator.ChangeParameter("IsRun", false);
-			move.SetRotation(qt, 0.2f);
-			move.SetMove(target, Vector3.zero, 2, EndMove);
-		}
-		else if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_1_Up)
-		{
-			Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
-			Vector3 f = target - this.gameObject.transform.position;
-			Quaternion qt = Quaternion.LookRotation(f);
-			//this.gameObject.transform.rotation = qt;
-			GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
-			if (move == null)
-			{
-				move = this.gameObject.AddComponent<GameObjectMoveControl>();
-			}
+	//		m_CharacterAnimator.ChangeParameter("IsWalk", true);
+	//		m_CharacterAnimator.ChangeParameter("IsRun", false);
+	//		move.SetRotation(qt, 0.2f);
+	//		move.SetMove(target, Vector3.zero, 2, EndMove);
+	//	}
+	//	else if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_1_Up)
+	//	{
+	//		Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
+	//		Vector3 f = target - this.gameObject.transform.position;
+	//		Quaternion qt = Quaternion.LookRotation(f);
+	//		//this.gameObject.transform.rotation = qt;
+	//		GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
+	//		if (move == null)
+	//		{
+	//			move = this.gameObject.AddComponent<GameObjectMoveControl>();
+	//		}
 
-			m_CharacterAnimator.ChangeParameter("IsWalk", true);
-			m_CharacterAnimator.ChangeParameter("IsRun", true);
-			move.SetRotation(qt, 0.2f);
-			move.SetMove(target, Vector3.zero, 1, EndMove);
-		}
-	}
+	//		m_CharacterAnimator.ChangeParameter("IsWalk", true);
+	//		m_CharacterAnimator.ChangeParameter("IsRun", true);
+	//		move.SetRotation(qt, 0.2f);
+	//		move.SetMove(target, Vector3.zero, 1, EndMove);
+	//	}
+	//}
 
-	private void EndMove(bool end)
-	{
-		if (end)
-		{
-			m_CharacterAnimator.ChangeParameter("IsRun", false);
-			m_CharacterAnimator.ChangeParameter("IsWalk", false);
-		}
-	}
-
-	protected override bool Update()
-	{
-		if (!base.Update())
-			return false;
-
-		if (Input.GetKeyDown(KeyCode.A))
-		{
-			StartListenMouse();
-		}
-
-		if (Input.GetKeyDown(KeyCode.S))
-		{
-			StopListenMouse();
-		}
-
-		return true;
-	}
+	//private void EndMove(bool end)
+	//{
+	//	if (end)
+	//	{
+	//		m_CharacterAnimator.ChangeParameter("IsRun", false);
+	//		m_CharacterAnimator.ChangeParameter("IsWalk", false);
+	//	}
+	//}
 }

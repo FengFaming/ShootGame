@@ -17,4 +17,22 @@ public class UIPnlFirstPanle : IUIModelControl
 		m_ModelObjectPath = "UIPnlFirstPanle";
 		m_IsOnlyOne = true;
 	}
+
+	public override void OpenSelf(GameObject target)
+	{
+		base.OpenSelf(target);
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.CHANGE_SCENE_PRESS_VALUE, new IMessageBase(
+			m_ControlTarget, false, Listen));
+	}
+
+	private void Listen(params object[] arms)
+	{
+		//Debug.Log(arms[0]);
+	}
+
+	public override void CloseSelf(bool manager = false)
+	{
+		base.CloseSelf(manager);
+		MessageManger.Instance.RemoveMessageListener(EngineMessageHead.CHANGE_SCENE_PRESS_VALUE, m_ControlTarget);
+	}
 }

@@ -63,7 +63,8 @@ namespace Game.Engine
 		public virtual void InitCharacter(
 			GameCharacterCameraBase gameCharacterCameraBase = null,
 			GameCharacterAttributeBase gameCharacterAttributeBase = null,
-			GameCharacterAnimatorBase animatorBase = null)
+			GameCharacterAnimatorBase animatorBase = null,
+			GameCharacterStateManager gameCharacterStateManager = null)
 		{
 			if (gameCharacterCameraBase == null)
 			{
@@ -80,9 +81,15 @@ namespace Game.Engine
 				animatorBase = new GameCharacterAnimatorBase(this.gameObject.GetComponentInChildren<Animator>());
 			}
 
+			if (gameCharacterStateManager == null)
+			{
+				gameCharacterStateManager = new GameCharacterStateManager(this);
+			}
+
 			m_CharacterCamera = gameCharacterCameraBase;
-			m_CharacterAnimator = animatorBase;
 			m_AttriControl = gameCharacterAttributeBase;
+			m_CharacterStateManager = gameCharacterStateManager;
+			m_CharacterStateManager.ControlAnimator = animatorBase;
 			m_HasInit = true;
 		}
 

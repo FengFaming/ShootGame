@@ -45,7 +45,7 @@ namespace Game.Engine
 		/// <param name="xml"></param>
 		/// <param name="isForceLoad"></param>
 		/// <param name="isSave"></param>
-		public void LoadXml(ref XmlBase xml, bool isForceLoad = false, bool isSave = false)
+		public void LoadXml<T>(ref T xml, bool isForceLoad = false, bool isSave = false) where T : XmlBase
 		{
 			if (isForceLoad)
 			{
@@ -57,7 +57,7 @@ namespace Game.Engine
 
 			if (m_AllXml.ContainsKey(xml.XmlName))
 			{
-				xml = m_AllXml[xml.XmlName];
+				xml = m_AllXml[xml.XmlName] as T;
 				return;
 			}
 			else

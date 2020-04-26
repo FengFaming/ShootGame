@@ -14,9 +14,14 @@ public class AnimationPlayer : GameCharacterBase
 {
 	private Rigidbody m_ControlRigidbody;
 
-	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null, GameCharacterAttributeBase gameCharacterAttributeBase = null, GameCharacterAnimatorBase animatorBase = null)
+	private bool m_IsWalk;
+
+	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null,
+										GameCharacterAttributeBase gameCharacterAttributeBase = null,
+										GameCharacterAnimatorBase animatorBase = null,
+										GameCharacterStateManager gameCharacterStateManager = null)
 	{
-		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase);
+		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase, gameCharacterStateManager);
 		BoxCollider bc = this.gameObject.GetComponentInChildren<BoxCollider>();
 		BoxCollider bvc = this.gameObject.AddComponent<BoxCollider>();
 		bvc.center = bc.center;
@@ -31,9 +36,9 @@ public class AnimationPlayer : GameCharacterBase
 		m_ControlRigidbody = n;
 
 		this.gameObject.AddComponent<AnimatorBase>();
-		//GameMouseInputManager.Instance.SetMouseListen(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER, 5);
-		//MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER,
-		//	new IMessageBase(this.gameObject, false, ListenMouse));
+		GameMouseInputManager.Instance.SetMouseListen(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER, 5);
+		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_MOUSE_EVENT_FOR_INPUT_MANAGER,
+			new IMessageBase(this.gameObject, false, ListenMouse));
 
 		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.A,
 			new IMessageBase(this.gameObject, false, ListenKey));
@@ -46,6 +51,9 @@ public class AnimationPlayer : GameCharacterBase
 
 		MessageManger.Instance.AddMessageListener(EngineMessageHead.LISTEN_KEY_EVENT_FOR_INPUT_MANAGER + "-" + (int)KeyCode.S,
 			new IMessageBase(this.gameObject, false, ListenKey));
+
+		m_CharacterStateManager.TryGotoState(0);
+		m_IsWalk = true;
 	}
 
 	private void ListenKey(params object[] arms)
@@ -86,8 +94,8 @@ public class AnimationPlayer : GameCharacterBase
 					m_ControlRigidbody.velocity = focale;
 				}
 
-				m_CharacterAnimator.ChangeParameter("IsWalk", false);
-				m_CharacterAnimator.ChangeParameter("IsRun", false);
+				m_IsWalk = true;
+				m_CharacterStateManager.TryGotoState(0);
 			}
 		}
 	}
@@ -105,58 +113,31 @@ public class AnimationPlayer : GameCharacterBase
 
 		if (m_ControlRigidbody != null)
 		{
+			if (m_IsWalk)
+			{
+				m_CharacterStateManager.TryGotoState(1);
+			}
+			else
+			{
+				sp *= 2;
+				m_CharacterStateManager.TryGotoState(2);
+			}
+
 			m_ControlRigidbody.velocity = sp;
-			m_CharacterAnimator.ChangeParameter("IsWalk", true);
-			m_CharacterAnimator.ChangeParameter("IsRun", false);
 		}
 	}
 
-	//private void ListenMouse(params object[] arms)
-	//{
-	//	GameMouseInputManager.ListenEvent le = (GameMouseInputManager.ListenEvent)arms[0];
+	private void ListenMouse(params object[] arms)
+	{
+		GameMouseInputManager.ListenEvent le = (GameMouseInputManager.ListenEvent)arms[0];
 
-	//	if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_0_Up)
-	//	{
-	//		Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
-	//		Vector3 f = target - this.gameObject.transform.position;
-	//		Quaternion qt = Quaternion.LookRotation(f);
-	//		//this.gameObject.transform.rotation = qt;
-	//		GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
-	//		if (move == null)
-	//		{
-	//			move = this.gameObject.AddComponent<GameObjectMoveControl>();
-	//		}
-
-	//		m_CharacterAnimator.ChangeParameter("IsWalk", true);
-	//		m_CharacterAnimator.ChangeParameter("IsRun", false);
-	//		move.SetRotation(qt, 0.2f);
-	//		move.SetMove(target, Vector3.zero, 2, EndMove);
-	//	}
-	//	else if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_1_Up)
-	//	{
-	//		Vector3 target = new Vector3(le.m_ScenePosition.x, this.gameObject.transform.position.y, le.m_ScenePosition.z);
-	//		Vector3 f = target - this.gameObject.transform.position;
-	//		Quaternion qt = Quaternion.LookRotation(f);
-	//		//this.gameObject.transform.rotation = qt;
-	//		GameObjectMoveControl move = this.gameObject.GetComponent<GameObjectMoveControl>();
-	//		if (move == null)
-	//		{
-	//			move = this.gameObject.AddComponent<GameObjectMoveControl>();
-	//		}
-
-	//		m_CharacterAnimator.ChangeParameter("IsWalk", true);
-	//		m_CharacterAnimator.ChangeParameter("IsRun", true);
-	//		move.SetRotation(qt, 0.2f);
-	//		move.SetMove(target, Vector3.zero, 1, EndMove);
-	//	}
-	//}
-
-	//private void EndMove(bool end)
-	//{
-	//	if (end)
-	//	{
-	//		m_CharacterAnimator.ChangeParameter("IsRun", false);
-	//		m_CharacterAnimator.ChangeParameter("IsWalk", false);
-	//	}
-	//}
+		if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_0_Down)
+		{
+			m_IsWalk = true;
+		}
+		else if (le.m_MouseType == GameMouseInputManager.MouseEventType.Mouse_1_Down)
+		{
+			m_IsWalk = false;
+		}
+	}
 }

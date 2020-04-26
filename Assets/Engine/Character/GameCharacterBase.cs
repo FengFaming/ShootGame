@@ -38,9 +38,9 @@ namespace Game.Engine
 		public GameCharacterAttributeBase AttriControl { get { return m_AttriControl; } }
 
 		/// <summary>
-		/// 角色动作管理器
+		/// 角色状态管理器
 		/// </summary>
-		protected GameCharacterAnimatorBase m_CharacterAnimator;
+		protected GameCharacterStateManager m_CharacterStateManager;
 
 		/// <summary>
 		/// 角色摄像机

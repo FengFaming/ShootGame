@@ -82,7 +82,25 @@ public class AnimationScene : IScene
 			m_LoadCont++;
 			m_LoadAction((m_LoadCont / (float)m_MaxLoadCont) * 100);
 			AnimationPlayer ch = t as AnimationPlayer;
-			ch.InitCharacter();
+
+			CharacterXmlControl xml = new CharacterXmlControl("2312001");
+			ConfigurationManager.Instance.LoadXml(ref xml);
+			GameCharacterStateManager stateManager = new GameCharacterStateManager(ch);
+			foreach (var info in xml.m_StateInfos)
+			{
+				CharacterStateBase state = ReflexManager.Instance.CreateClass(info.Value.m_Control, info.Key) as CharacterStateBase;
+				if (state != null)
+				{
+					for (int index = 0; index < info.Value.m_Paramters.Count; index++)
+					{
+						state.AddChangeStateParameter(info.Value.m_Paramters[index]);
+					}
+				}
+
+				stateManager.AddManagerState(state);
+			}
+
+			ch.InitCharacter(null, null, null, stateManager);
 			ch.SetCameraTra(new Vector3(0, 2, -10), Vector3.zero, Vector3.one);
 		}
 

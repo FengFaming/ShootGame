@@ -47,7 +47,6 @@ namespace Game.Engine
 			m_ServerID = -1;
 			m_LateCameraTime = 1f;
 			m_AttriControl = null;
-			m_CharacterAnimator = null;
 			m_CharacterCamera = null;
 		}
 
@@ -64,9 +63,9 @@ namespace Game.Engine
 					m_CharacterCamera.Update(m_LateCameraTime);
 				}
 
-				if (m_CharacterAnimator != null)
+				if (m_CharacterStateManager != null)
 				{
-					m_CharacterAnimator.Update();
+					m_CharacterStateManager.UpdateState();
 				}
 
 				return true;

@@ -29,7 +29,7 @@ public class GameStart : ObjectBase
 	{
 		if ((bool)arms[0])
 		{
-			UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Blk);
+			UIManager.Instance.OpenUI("UIPnlFirstPanle", UILayer.Blk, true);
 		}
 		else
 		{

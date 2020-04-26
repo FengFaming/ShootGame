@@ -177,11 +177,6 @@ namespace Game.Engine
 		private void ChangePressValue(float value)
 		{
 			m_ChangePress = value;
-			if (value == 1)
-			{
-				Debug.Log(m_ChangePress);
-			}
-
 			MessageManger.Instance.SendMessage(EngineMessageHead.CHANGE_SCENE_PRESS_VALUE, m_ChangePress);
 		}
 	}

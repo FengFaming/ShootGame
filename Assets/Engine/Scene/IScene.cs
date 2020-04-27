@@ -42,6 +42,15 @@ namespace Game.Engine
 		}
 
 		/// <summary>
+		/// 清除数据
+		///		比如监听内容等等
+		/// </summary>
+		public virtual void ClearSceneData()
+		{
+
+		}
+
+		/// <summary>
 		/// 移除场景内容
 		/// </summary>
 		/// <param name="action">返回加载长度</param>

@@ -140,4 +140,10 @@ public class AnimationPlayer : GameCharacterBase
 			m_IsWalk = false;
 		}
 	}
+
+	public override void Clear()
+	{
+		base.Clear();
+		GameMouseInputManager.Instance.SetMouseListen("", 0);
+	}
 }

@@ -93,6 +93,11 @@ namespace Game.Engine
 			yield return new WaitForFixedUpdate();
 			ChangePressValue(0.1f);
 
+			if (m_LastScene != null)
+			{
+				m_LastScene.ClearSceneData();
+			}
+
 			AsyncOperation asy = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(1);
 			yield return asy;
 			ChangePressValue(0.2f);
@@ -104,7 +109,7 @@ namespace Game.Engine
 			}
 			else
 			{
-				m_Current.DestroyScene(GetDestroyProcess);
+				m_LastScene.DestroyScene(GetDestroyProcess);
 			}
 		}
 

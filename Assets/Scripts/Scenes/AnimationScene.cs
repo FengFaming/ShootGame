@@ -47,15 +47,25 @@ public class AnimationScene : IScene
 		private int m_MaxLoadCont;
 		private int m_LoadCont;
 
+		/// <summary>
+		/// 场景目标
+		/// </summary>
+		private AnimationPlayer m_SceneTarget;
+
 		private void Awake()
 		{
 			m_MaxLoadCont = 101;
 			m_LoadCont = 0;
 		}
 
-		public void DestroyScene(Action<float> action)
+		public void ClearData()
 		{
-			StartCoroutine(StartDestroyScene(action));
+			if (m_SceneTarget != null)
+			{
+				m_SceneTarget.Clear();
+			}
+
+			m_SceneTarget = null;
 		}
 
 		public void LoadScene(Action<float> action)
@@ -75,6 +85,7 @@ public class AnimationScene : IScene
 			go.transform.localScale = Vector3.one;
 			AnimationPlayer ch = go.AddComponent<AnimationPlayer>();
 			ch.StartInitCharacter("elephant", GetCharacter);
+			m_SceneTarget = ch;
 		}
 
 		private void GetCharacter(object t)
@@ -142,13 +153,9 @@ public class AnimationScene : IScene
 					yield return null;
 				}
 			}
-		}
 
-		private IEnumerator StartDestroyScene(Action<float> action)
-		{
 			yield return null;
-			m_LoadCont = 0;
-			action(100);
+			UIManager.Instance.OpenUI("UIPnlBackGameMain", UILayer.Pnl);
 		}
 	}
 
@@ -168,6 +175,15 @@ public class AnimationScene : IScene
 		scene.gameObject.transform.eulerAngles = Vector3.zero;
 		scene.gameObject.transform.localScale = Vector3.one;
 		m_LoadControl = scene.gameObject.AddComponent<AnimationSceneControl>();
+	}
+
+	public override void ClearSceneData()
+	{
+		base.ClearSceneData();
+		if (m_LoadControl != null)
+		{
+			m_LoadControl.ClearData();
+		}
 	}
 
 	public override void LoadScene(Action<float> action)

@@ -34,12 +34,17 @@ namespace Game.Engine
 		protected Vector3 m_DeltPosition;
 
 		/// <summary>
+		/// 是否跟随
+		/// </summary>
+		protected bool m_IsFollow;
+
+		/// <summary>
 		/// 初始化摄像机管理
 		/// </summary>
 		/// <param name="target">目标对象</param>
 		/// <param name="sun">是否作为子节点</param>
 		/// <param name="c">摄像机对象</param>
-		public GameCharacterCameraBase(GameObject target, bool sun = false, Camera c = null)
+		public GameCharacterCameraBase(GameObject target, bool sun = false, Camera c = null, bool follow = true)
 		{
 			m_ControlTarget = target;
 
@@ -56,6 +61,8 @@ namespace Game.Engine
 			}
 
 			m_DeltPosition = Vector3.zero;
+
+			m_IsFollow = follow;
 		}
 
 		/// <summary>
@@ -98,12 +105,15 @@ namespace Game.Engine
 		/// <param name="time"></param>
 		public virtual void LateUpdate(float time)
 		{
-			if (!m_IsSun)
+			if (m_IsFollow)
 			{
-				m_ControlCamera.gameObject.transform.position =
-					Vector3.Lerp(m_ControlCamera.gameObject.transform.position,
-					m_ControlTarget.gameObject.transform.position - m_DeltPosition,
-					time);
+				if (!m_IsSun)
+				{
+					m_ControlCamera.gameObject.transform.position =
+						Vector3.Lerp(m_ControlCamera.gameObject.transform.position,
+						m_ControlTarget.gameObject.transform.position - m_DeltPosition,
+						time);
+				}
 			}
 		}
 	}

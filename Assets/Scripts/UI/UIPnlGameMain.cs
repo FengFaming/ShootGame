@@ -24,6 +24,7 @@ public class UIPnlGameMain : IUIModelControl
 		base.OpenSelf(target);
 		Button animation = m_ControlTarget.gameObject.transform.Find("animation").gameObject.GetComponent<Button>();
 		Button shoot = m_ControlTarget.gameObject.transform.Find("shoot").gameObject.GetComponent<Button>();
+
 		animation.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(1); }));
 		shoot.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(2); }));
 	}
@@ -34,6 +35,9 @@ public class UIPnlGameMain : IUIModelControl
 		{
 			case 1:
 				GameSceneManager.Instance.ChangeScene(new AnimationScene("animationscene"));
+				break;
+			case 2:
+				GameSceneManager.Instance.ChangeScene(new ShootGameScene());
 				break;
 		}
 	}

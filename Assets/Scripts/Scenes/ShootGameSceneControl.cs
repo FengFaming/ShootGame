@@ -21,6 +21,10 @@ public partial class ShootGameScene : IScene
 
 		private ShootGamePlayer m_TargetPlayer;
 
+		private int m_Cout;
+
+		private ShootGamePoolControl m_PoolControl;
+
 		public void ClearSceneData()
 		{
 
@@ -29,13 +33,26 @@ public partial class ShootGameScene : IScene
 		public void LoadScene(Action<float> action)
 		{
 			m_LoadFun = action;
+			m_Cout = 0;
 			StartCoroutine("StartScene");
+			m_PoolControl = ObjectPoolManager.Instance.InitPool("ShootGamePoolControl", "ShootGamePoolControl") as ShootGamePoolControl;
 		}
 
 		public void EndScene(Action<float> action)
 		{
 			m_EndFun = action;
 			m_EndFun(100);
+		}
+
+		private void LoadBack(object t)
+		{
+			GameObject plane = t as GameObject;
+			plane.transform.position = new Vector3(0, 0, 0);
+			plane.transform.rotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+			plane.transform.localScale = new Vector3(0.8f, 0.85f, 1);
+
+			m_Cout++;
+			m_LoadFun(m_Cout / 2 * 80 + 20);
 		}
 
 		private void LoadPlayer(object t)
@@ -69,7 +86,8 @@ public partial class ShootGameScene : IScene
 
 			if (m_TargetPlayer != null)
 			{
-				m_LoadFun(100);
+				m_Cout++;
+				m_LoadFun(m_Cout / 2 * 80 + 20);
 			}
 		}
 
@@ -88,12 +106,43 @@ public partial class ShootGameScene : IScene
 				Camera.main.gameObject.transform.localScale = Vector3.one;
 			}
 
+			Light l = GameObject.Find("Directional Light").GetComponent<Light>();
+			l.shadows = LightShadows.None;
+
 			m_LoadFun(20);
 			ResObjectCallBackBase cb = new ResObjectCallBackBase();
 			cb.m_FinshFunction = LoadPlayer;
 			ResObjectManager.Instance.LoadObject("lion", ResObjectType.GameObject, cb);
+
+			yield return null;
+
+			ResObjectCallBackBase bc = new ResObjectCallBackBase();
+			bc.m_FinshFunction = LoadBack;
+			ResObjectManager.Instance.LoadObject("Plane", ResObjectType.GameObject, bc);
 			UIManager.Instance.OpenUI("UIPnlShootGameMain", UILayer.Bot);
 			UIManager.Instance.OpenUI("UIPnlBackGameMain", UILayer.Pnl);
+
+			ResObjectCallBackBase dc = new ResObjectCallBackBase();
+			dc.m_FinshFunction = LoadShoot;
+			ResObjectManager.Instance.LoadObject("Sphere", ResObjectType.GameObject, dc);
+		}
+
+		private void LoadShoot(object t)
+		{
+			ShootGameObjectControl oc = new ShootGameObjectControl();
+			oc.m_Target = t as GameObject;
+			ObjectPoolManager.Instance.AddObject(m_PoolControl.PoolName, "Sphere", oc);
+			List<ObjectPoolControl> ocs = new List<ObjectPoolControl>();
+			for (int index = 0; index < 1; index++)
+			{
+				ObjectPoolControl objectPoolControl = ObjectPoolManager.Instance.GetCloneObject(m_PoolControl.PoolName, "Sphere");
+				ocs.Add(objectPoolControl);
+			}
+
+			for (int index = 0; index < ocs.Count; index++)
+			{
+				ObjectPoolManager.Instance.RecoveryObject(m_PoolControl.PoolName, "Sphere", ocs[index]);
+			}
 		}
 	}
 }

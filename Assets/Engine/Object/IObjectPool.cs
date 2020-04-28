@@ -26,7 +26,7 @@ namespace Game.Engine
 		/// <summary>
 		/// 对象池的唯一名字
 		/// </summary>
-		private string m_PoolName;
+		protected string m_PoolName;
 
 		public IObjectPool(string name)
 		{

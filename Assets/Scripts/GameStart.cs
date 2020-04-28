@@ -22,6 +22,9 @@ public class GameStart : ObjectBase
 		MessageManger.Instance.AddMessageListener(EngineMessageHead.CHANGE_SCENE_MESSAGE,
 						this.gameObject, OpenChangeScene);
 
+		GameShowFPS fps = this.gameObject.AddComponent<GameShowFPS>();
+		fps.IsShowFPS = true;
+
 		StartCoroutine("StartGame");
 	}
 

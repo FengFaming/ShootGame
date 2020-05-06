@@ -24,9 +24,11 @@ public class UIPnlGameMain : IUIModelControl
 		base.OpenSelf(target);
 		Button animation = m_ControlTarget.gameObject.transform.Find("animation").gameObject.GetComponent<Button>();
 		Button shoot = m_ControlTarget.gameObject.transform.Find("shoot").gameObject.GetComponent<Button>();
+		Button lua = m_ControlTarget.gameObject.transform.Find("lua").gameObject.GetComponent<Button>();
 
 		animation.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(1); }));
 		shoot.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(2); }));
+		lua.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(3); }));
 	}
 
 	private void OnClickAnimation(int tage)
@@ -38,6 +40,9 @@ public class UIPnlGameMain : IUIModelControl
 				break;
 			case 2:
 				GameSceneManager.Instance.ChangeScene(new ShootGameScene());
+				break;
+			case 3:
+				UIManager.Instance.OpenUI("UIPnlLove", UILayer.Blk);
 				break;
 		}
 	}

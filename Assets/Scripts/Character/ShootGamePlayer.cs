@@ -26,6 +26,12 @@ public class ShootGamePlayer : GameCharacterBase
 
 	private bool m_IsShoot;
 
+	/// <summary>
+	/// 射击数量
+	/// </summary>
+	[SerializeField]
+	private int m_ShootCout;
+
 	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null,
 										GameCharacterAttributeBase gameCharacterAttributeBase = null,
 										GameCharacterAnimatorBase animatorBase = null,
@@ -52,6 +58,7 @@ public class ShootGamePlayer : GameCharacterBase
 
 		m_MoveControl = this.gameObject.AddComponent<GameObjectMoveControl>();
 		m_IsShoot = false;
+		m_ShootCout = 1;
 	}
 
 	private void OnMoveWithSpeed(Vector3 sp)
@@ -81,12 +88,22 @@ public class ShootGamePlayer : GameCharacterBase
 			if (Time.time - m_LastShootTime > 0.001f)
 			{
 				m_LastShootTime = Time.time;
-				ShootGameObjectControl spc = ObjectPoolManager.Instance.GetCloneObject("ShootGamePoolControl", "Sphere") as ShootGameObjectControl;
-				ShootControl sc = spc.m_Target.AddComponent<ShootControl>();
-				sc.m_Target = spc;
-				sc.m_PoolName = "ShootGamePoolControl";
-				Vector3 start = this.gameObject.transform.position + new Vector3(0, 0.3f, -1);
-				sc.InitMove(start, start + new Vector3(0, 8, 0), 3f);
+				Vector3 start = this.gameObject.transform.position + new Vector3(0, 0.5f, -1);
+				for (int index = 0; index < m_ShootCout; index++)
+				{
+					Vector3 end = start;
+					end.y += 9;
+					float eng = 0 % 2 == 0 ? 1 : -1;
+					int z = 0 / 2;
+					float xe = z * 15 * eng;
+					float x = (float)Math.Sin(xe);
+					end.x += x;
+					ShootGameObjectControl spc = ObjectPoolManager.Instance.GetCloneObject("ShootGamePoolControl", "Sphere") as ShootGameObjectControl;
+					ShootControl sc = spc.m_Target.AddComponent<ShootControl>();
+					sc.m_Target = spc;
+					sc.m_PoolName = "ShootGamePoolControl";
+					sc.InitMove(start, end, 3f);
+				}
 			}
 		}
 
@@ -130,5 +147,12 @@ public class ShootGamePlayer : GameCharacterBase
 
 			OnMoveWithSpeed(focale);
 		}
+	}
+
+	public override void Clear()
+	{
+		base.Clear();
+		GameMouseInputManager.Instance.SetMouseListen("", 0);
+		MessageManger.Instance.RemoveMessageListener(this.gameObject);
 	}
 }

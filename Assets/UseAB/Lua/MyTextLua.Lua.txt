@@ -1,0 +1,19 @@
+function init()
+	print("lua start...")
+end
+
+function open()
+	print("lua open...")
+end
+
+function update()
+	print("lua update...")
+end
+
+function destroy()
+	print("lua destroy...")
+end
+
+function click()
+  CS.UnityEngine.Debug.Log("click");
+end

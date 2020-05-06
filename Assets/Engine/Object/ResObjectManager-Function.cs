@@ -124,6 +124,9 @@ namespace Game.Engine
 				case ResObjectType.Configuration:
 					str = str + "/" + info.m_LoadName + ".xml";
 					break;
+				case ResObjectType.Lua:
+					str = str + "/" + info.m_LoadName + ".lua.txt";
+					break;
 				default:
 					str = str + "/" + info.m_LoadName + ".prefab";
 					break;
@@ -138,8 +141,15 @@ namespace Game.Engine
 
 			if (cb != null)
 			{
-				UnityEngine.Object target = UnityEngine.Object.Instantiate(oj);
-				cb.HandleLoadCallBack(target);
+				if (info.m_LoadType != ResObjectType.Lua)
+				{
+					UnityEngine.Object target = UnityEngine.Object.Instantiate(oj);
+					cb.HandleLoadCallBack(target);
+				}
+				else
+				{
+					cb.HandleLoadCallBack(oj);
+				}
 			}
 #else
 

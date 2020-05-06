@@ -145,5 +145,6 @@ public class AnimationPlayer : GameCharacterBase
 	{
 		base.Clear();
 		GameMouseInputManager.Instance.SetMouseListen("", 0);
+		MessageManger.Instance.RemoveMessageListener(this.gameObject);
 	}
 }

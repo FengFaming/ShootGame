@@ -40,6 +40,10 @@ public partial class ShootGameScene : IScene
 	public override void ClearSceneData()
 	{
 		base.ClearSceneData();
+		if (m_LoadControl != null)
+		{
+			m_LoadControl.ClearSceneData();
+		}
 	}
 
 	/// <summary>

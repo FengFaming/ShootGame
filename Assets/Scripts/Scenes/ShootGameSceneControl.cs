@@ -27,7 +27,10 @@ public partial class ShootGameScene : IScene
 
 		public void ClearSceneData()
 		{
-
+			if (m_TargetPlayer != null)
+			{
+				m_TargetPlayer.Clear();
+			}
 		}
 
 		public void LoadScene(Action<float> action)

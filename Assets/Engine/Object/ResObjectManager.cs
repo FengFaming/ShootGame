@@ -64,7 +64,12 @@ namespace Game.Engine
 		/// <summary>
 		/// 配置文件
 		/// </summary>
-		Configuration
+		Configuration,
+
+		/// <summary>
+		/// lua配置文件
+		/// </summary>
+		Lua
 	}
 
 	public partial class ResObjectManager : SingletonMonoClass<ResObjectManager>
@@ -390,6 +395,10 @@ namespace Game.Engine
 						case ResObjectType.Configuration:
 							UnityEngine.Object cf = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<UnityEngine.Object>(info.m_LoadName);
 							oj = cf;
+							break;
+						case ResObjectType.Lua:
+							TextAsset ta = m_AllABInfoDic[info.m_LoadName].m_TargetAB.LoadAsset<TextAsset>(info.m_LoadName);
+							oj = ta;
 							break;
 					}
 

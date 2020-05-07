@@ -25,7 +25,27 @@ public class UIPnlLove : UIModelLuaControl
 	{
 		base.OpenSelf(target);
 		Button t = target.transform.Find("Image").gameObject.GetComponent<Button>();
-		Action action = m_UILuaTable.Get<Action>("click");
-		t.onClick.AddListener(() => { action(); });
+		if (m_UILuaTable != null)
+		{
+			m_UILuaTable.Set("lightCpnt", t);
+		}
+
+		Action<GameObject> action = m_UILuaTable.Get<Action<GameObject>>("click");
+		t.onClick.AddListener(() => { action(t.gameObject); });
+
+		//UIManager.Instance.AddUpdate(this);
+	}
+
+	public override bool Update()
+	{
+		if (!base.Update())
+			return false;
+
+		if (m_LuaUpdate != null)
+		{
+			m_LuaUpdate();
+		}
+
+		return true;
 	}
 }

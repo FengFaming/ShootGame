@@ -280,6 +280,7 @@ public static class ExampleConfig
 				typeof(Mathf),
 				typeof(System.Collections.Generic.List<int>),
 				typeof(Action<string>),
+				typeof(Action<GameObject>),
 				typeof(UnityEngine.Debug)  ,
 				typeof(Button),
 				typeof(Game.Engine.UIManager),

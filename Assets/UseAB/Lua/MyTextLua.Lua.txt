@@ -20,5 +20,5 @@ end
 
 function click(go)
     lightCpnt = go;
-  CS.UnityEngine.Debug.Log(lightCpnt);
+	CS.UnityEngine.Debug.Log(lightCpnt);
 end

@@ -42,7 +42,7 @@ public class UIPnlGameMain : IUIModelControl
 				GameSceneManager.Instance.ChangeScene(new ShootGameScene());
 				break;
 			case 3:
-				UIManager.Instance.OpenUI("UIPnlLove", UILayer.Blk);
+				UIManager.Instance.OpenUI("UIPnlInputCout", UILayer.Blk);
 				break;
 		}
 	}

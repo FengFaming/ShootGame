@@ -43,6 +43,7 @@ namespace Game.Engine
 		Blk = 5,
 	}
 
+	[XLua.LuaCallCSharp]
 	public class UIManager : SingletonMonoClass<UIManager>
 	{
 		internal class LoadUIModel : IResObjectCallBack

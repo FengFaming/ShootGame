@@ -111,5 +111,25 @@ namespace Game.Engine
 			n.collisionDetectionMode = target.collisionDetectionMode;
 			n.constraints = target.constraints;
 		}
+
+		/// <summary>
+		/// 将字符串转成枚举
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public T StringToEnum<T>(string value)
+		{
+			try
+			{
+				return (T)(Enum.Parse(typeof(T), value));
+			}
+			catch (Exception e)
+			{
+				Debug.LogError(e);
+			}
+
+			return default(T);
+		}
 	}
 }

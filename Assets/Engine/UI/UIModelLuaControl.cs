@@ -21,8 +21,6 @@ namespace Game.Engine
 		/// <summary>
 		/// lua控制内容
 		/// </summary>
-		protected LuaEnv m_UILuaControl;
-
 		protected LuaTable m_UILuaTable;
 
 		/// <summary>
@@ -30,40 +28,38 @@ namespace Game.Engine
 		/// </summary>
 		protected string m_LuaName;
 
-		protected Action m_LuaOpen;
+		/// <summary>
+		/// lua.Update
+		/// </summary>
 		protected Action m_LuaUpdate;
-		protected Action m_LuaDestroy;
 
 		/// <summary>
-		/// lua文件是否已经加载
+		/// lua.Destroy
 		/// </summary>
-		private bool m_IsLoadLua;
+		protected Action m_LuaDestroy;
 
 		public UIModelLuaControl() : base()
 		{
 			m_LuaName = string.Empty;
-			m_IsLoadLua = false;
 		}
 
 		public override void CloseSelf(bool manager = false)
 		{
 			base.CloseSelf(manager);
 
-			if (m_UILuaControl != null)
+			if (m_LuaDestroy != null)
 			{
-				m_UILuaControl.Dispose();
-				m_UILuaControl = null;
+				m_LuaDestroy();
 			}
-		}
 
-		/// <summary>
-		/// 初始化自己
-		/// </summary>
-		/// <param name="layer"></param>
-		/// <param name="arms"></param>
-		public override void InitUIData(UILayer layer, params object[] arms)
-		{
-			base.InitUIData(layer, arms);
+			if (m_UILuaTable != null)
+			{
+				m_UILuaTable.Dispose();
+			}
+
+			m_UILuaTable = null;
+			m_LuaUpdate = null;
+			m_LuaDestroy = null;
 		}
 
 		/// <summary>
@@ -74,43 +70,33 @@ namespace Game.Engine
 		{
 			base.OpenSelf(target);
 
-			m_UILuaControl = new LuaEnv();
-			m_UILuaTable = m_UILuaControl.NewTable();
-
-			// 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
-			LuaTable meta = m_UILuaControl.NewTable();
-			meta.Set("__index", m_UILuaControl.Global);
-			m_UILuaTable.SetMetaTable(meta);
-			meta.Dispose();
-
-			m_UILuaTable.Set("self", target);
-
-			//m_UILuaControl.AddLoader((ref string filename) =>
-			//{
-			//	string path = Application.dataPath + "/UseAB/Lua/" + filename + ".lua.txt";
-			//	string ta = File.ReadAllText(path);
-			//	return System.Text.Encoding.UTF8.GetBytes(ta);
-			//});
-			//			m_UILuaControl.DoString("require 'MyTextLua'");
-
-			string path = Application.dataPath + "/UseAB/Lua/" + m_LuaName + ".lua.txt";
-			string ta = File.ReadAllText(path);
-			m_UILuaControl.DoString(ta, m_LuaName, m_UILuaTable);
-
-			Action luaAwake = m_UILuaTable.Get<Action>("init");
-			m_UILuaTable.Get("open", out m_LuaOpen);
+			///为什么要再这里进行创建，因为再这里方便设置自身
+			m_UILuaTable = LuaManager.Instance.CreateTable(m_LuaName, this);
+			Action<GameObject> luaAwake = m_UILuaTable.Get<Action<GameObject>>("init");
 			m_UILuaTable.Get("update", out m_LuaUpdate);
 			m_UILuaTable.Get("destroy", out m_LuaDestroy);
 
 			if (luaAwake != null)
 			{
-				luaAwake();
+				luaAwake(m_ControlTarget);
+			}
+		}
+
+		/// <summary>
+		/// 更新
+		/// </summary>
+		/// <returns></returns>
+		public override bool Update()
+		{
+			if (!base.Update())
+				return false;
+
+			if (m_LuaUpdate != null)
+			{
+				m_LuaUpdate();
 			}
 
-			if (m_LuaOpen != null)
-			{
-				m_LuaOpen();
-			}
+			return true;
 		}
 	}
 }

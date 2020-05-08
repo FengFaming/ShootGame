@@ -37,6 +37,12 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Tutorial.DerivedClassExtensions), TutorialDerivedClassExtensionsWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(Game.Engine.LuaManager), GameEngineLuaManagerWrap.__Register);
+        
+        
+            translator.DelayWrapLoader(typeof(Game.Engine.UIManager), GameEngineUIManagerWrap.__Register);
+        
+        
             translator.DelayWrapLoader(typeof(Tutorial.DerivedClass.TestEnumInner), TutorialDerivedClassTestEnumInnerWrap.__Register);
         
         
@@ -125,9 +131,6 @@ namespace XLua.CSObjectWrap
         
         
             translator.DelayWrapLoader(typeof(UnityEngine.UI.Button), UnityEngineUIButtonWrap.__Register);
-        
-        
-            translator.DelayWrapLoader(typeof(Game.Engine.UIManager), GameEngineUIManagerWrap.__Register);
         
         
         

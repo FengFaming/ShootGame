@@ -35,9 +35,10 @@ public class ShootGamePlayer : GameCharacterBase
 	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null,
 										GameCharacterAttributeBase gameCharacterAttributeBase = null,
 										GameCharacterAnimatorBase animatorBase = null,
-										GameCharacterStateManager gameCharacterStateManager = null)
+										GameCharacterStateManager gameCharacterStateManager = null,
+										CharacterMountControl characterMountControl = null)
 	{
-		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase, gameCharacterStateManager);
+		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase, gameCharacterStateManager, characterMountControl);
 		m_CharacterStateManager.TryGotoState(0);
 		m_LastShootTime = Time.time;
 

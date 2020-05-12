@@ -131,5 +131,30 @@ namespace Game.Engine
 
 			return default(T);
 		}
+
+		/// <summary>
+		/// 字符串转向量
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		public Vector3 StringToVector3(string s)
+		{
+			Vector3 rt = Vector3.zero;
+			if (s == null || s.Equals(" "))
+			{
+				return rt;
+			}
+
+			string[] point = s.Split(',');
+			if (point.Length != 3)
+			{
+				return rt;
+			}
+
+			rt.x = float.Parse(point[0]);
+			rt.y = float.Parse(point[1]);
+			rt.z = float.Parse(point[2]);
+			return rt;
+		}
 	}
 }

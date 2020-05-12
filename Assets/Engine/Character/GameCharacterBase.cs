@@ -41,6 +41,12 @@ namespace Game.Engine
 		/// 角色状态管理器
 		/// </summary>
 		protected GameCharacterStateManager m_CharacterStateManager;
+		public GameCharacterStateManager StateManager { get { return m_CharacterStateManager; } }
+
+		/// <summary>
+		/// 挂载点控制
+		/// </summary>
+		protected CharacterMountControl m_CharacterMountControl;
 
 		/// <summary>
 		/// 角色摄像机

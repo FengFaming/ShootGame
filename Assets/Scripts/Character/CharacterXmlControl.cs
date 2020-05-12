@@ -21,12 +21,40 @@ public class CharacterXmlControl : XmlBase
 		public List<KeyValuePair<string, bool>> m_Paramters;
 	}
 
+	public struct LoadInfo
+	{
+		public string m_Key;
+		public string m_Model;
+		public Vector3 m_Position;
+		public Vector3 m_Rotation;
+		public Vector3 m_Scale;
+	}
+
+	/// <summary>
+	/// 状态
+	/// </summary>
 	public Dictionary<int, StateInfo> m_StateInfos;
+
+	/// <summary>
+	/// 挂载点
+	/// </summary>
+	public Dictionary<int, MountInfo> m_MountInfos;
+
+	/// <summary>
+	/// 加载列表
+	/// </summary>
+	public List<LoadInfo> m_LoadInfos;
 
 	public CharacterXmlControl(string name) : base(name)
 	{
 		m_StateInfos = new Dictionary<int, StateInfo>();
 		m_StateInfos.Clear();
+
+		m_MountInfos = new Dictionary<int, MountInfo>();
+		m_MountInfos.Clear();
+
+		m_LoadInfos = new List<LoadInfo>();
+		m_LoadInfos.Clear();
 	}
 
 	public override bool LoadXml(XmlElement node)
@@ -36,6 +64,20 @@ public class CharacterXmlControl : XmlBase
 
 		foreach (XmlElement item in node.ChildNodes)
 		{
+			if (item.Name == "Loads")
+			{
+				foreach (XmlElement s in item.ChildNodes)
+				{
+					LoadInfo info = new LoadInfo();
+					info.m_Key = s.GetAttribute("Key");
+					info.m_Model = s.GetAttribute("Name");
+					info.m_Position = EngineTools.Instance.StringToVector3(s.GetAttribute("Position"));
+					info.m_Rotation = EngineTools.Instance.StringToVector3(s.GetAttribute("Rotation"));
+					info.m_Scale = EngineTools.Instance.StringToVector3(s.GetAttribute("Scale"));
+					m_LoadInfos.Add(info);
+				}
+			}
+
 			if (item.Name == "States")
 			{
 				foreach (XmlElement s in item.ChildNodes)
@@ -53,6 +95,20 @@ public class CharacterXmlControl : XmlBase
 					}
 
 					m_StateInfos.Add(id, info);
+				}
+			}
+
+			if (item.Name == "Mount")
+			{
+				foreach (XmlElement s in item.ChildNodes)
+				{
+					MountInfo info = new MountInfo();
+					info.m_MountIndex = int.Parse(s.GetAttribute("ID"));
+					info.m_MountName = s.GetAttribute("Name");
+					info.m_MountPosition = EngineTools.Instance.StringToVector3(s.GetAttribute("Position"));
+					info.m_MountRotation = EngineTools.Instance.StringToVector3(s.GetAttribute("Rotation"));
+					info.m_MountScale = EngineTools.Instance.StringToVector3(s.GetAttribute("Scale"));
+					m_MountInfos.Add(info.m_MountIndex, info);
 				}
 			}
 		}

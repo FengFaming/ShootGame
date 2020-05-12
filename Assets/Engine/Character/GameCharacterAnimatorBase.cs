@@ -23,7 +23,7 @@ namespace Game.Engine
 			m_OwnerAnimator = ator;
 			if (m_OwnerAnimator == null)
 			{
-				Debug.LogError("the ch is error.");
+				//Debug.LogError("the ch is error.");
 			}
 		}
 

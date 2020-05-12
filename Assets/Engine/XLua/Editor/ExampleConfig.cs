@@ -285,6 +285,7 @@ public static class ExampleConfig
 				typeof(Button),
 				typeof(Game.Engine.UIManager),
 				typeof(Game.Engine.LuaManager),
+				typeof(string),
 			};
 
 	//C#静态调用Lua的配置（包括事件的原型），仅可以配delegate，interface

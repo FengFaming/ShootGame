@@ -64,7 +64,8 @@ namespace Game.Engine
 			GameCharacterCameraBase gameCharacterCameraBase = null,
 			GameCharacterAttributeBase gameCharacterAttributeBase = null,
 			GameCharacterAnimatorBase animatorBase = null,
-			GameCharacterStateManager gameCharacterStateManager = null)
+			GameCharacterStateManager gameCharacterStateManager = null,
+			CharacterMountControl characterMountControl = null)
 		{
 			if (gameCharacterCameraBase == null)
 			{
@@ -86,10 +87,16 @@ namespace Game.Engine
 				gameCharacterStateManager = new GameCharacterStateManager(this);
 			}
 
+			if (characterMountControl == null)
+			{
+				characterMountControl = new CharacterMountControl(this);
+			}
+
 			m_CharacterCamera = gameCharacterCameraBase;
 			m_AttriControl = gameCharacterAttributeBase;
 			m_CharacterStateManager = gameCharacterStateManager;
 			m_CharacterStateManager.ControlAnimator = animatorBase;
+			m_CharacterMountControl = characterMountControl;
 			m_HasInit = true;
 		}
 

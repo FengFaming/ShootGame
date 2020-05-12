@@ -19,9 +19,10 @@ public class AnimationPlayer : GameCharacterBase
 	public override void InitCharacter(GameCharacterCameraBase gameCharacterCameraBase = null,
 										GameCharacterAttributeBase gameCharacterAttributeBase = null,
 										GameCharacterAnimatorBase animatorBase = null,
-										GameCharacterStateManager gameCharacterStateManager = null)
+										GameCharacterStateManager gameCharacterStateManager = null,
+										CharacterMountControl characterMountControl = null)
 	{
-		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase, gameCharacterStateManager);
+		base.InitCharacter(gameCharacterCameraBase, gameCharacterAttributeBase, animatorBase, gameCharacterStateManager, characterMountControl);
 		BoxCollider bc = this.gameObject.GetComponentInChildren<BoxCollider>();
 		BoxCollider bvc = this.gameObject.AddComponent<BoxCollider>();
 		bvc.center = bc.center;

@@ -19,6 +19,7 @@ namespace Game.Engine
 	public class LuaManager : SingletonMonoClass<LuaManager>
 	{
 		private static readonly LuaEnv M_LUA_ENV = new LuaEnv();
+		public LuaEnv MyLuaEnv { get { return M_LUA_ENV; } }
 
 		/// <summary>
 		/// 创建一个table

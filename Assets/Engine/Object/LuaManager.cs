@@ -47,7 +47,6 @@ namespace Game.Engine
 				target.Dispose();
 			}
 
-
 			return target;
 		}
 

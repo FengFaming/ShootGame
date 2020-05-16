@@ -31,6 +31,11 @@ public partial class ShootGameScene : IScene
 			{
 				m_TargetPlayer.Clear();
 			}
+
+			if (m_PoolControl != null)
+			{
+				ObjectPoolManager.Instance.RemoveObject(m_PoolControl.PoolName, "Sphere");
+			}
 		}
 
 		public void LoadScene(Action<float> action)

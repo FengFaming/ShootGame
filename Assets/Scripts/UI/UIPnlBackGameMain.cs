@@ -15,10 +15,24 @@ using UnityEngine.UI;
 
 public class UIPnlBackGameMain : IUIModelControl
 {
+	private Vector3 m_Position;
+	private bool m_IsSetPosition;
+
 	public UIPnlBackGameMain() : base()
 	{
 		m_ModelObjectPath = "UIPnlBackGameMain";
 		m_IsOnlyOne = true;
+	}
+
+	public override void InitUIData(UILayer layer, params object[] arms)
+	{
+		base.InitUIData(layer, arms);
+		m_IsSetPosition = false;
+		if (arms != null && arms.Length > 0)
+		{
+			m_Position = (Vector3)arms[0];
+			m_IsSetPosition = true;
+		}
 	}
 
 	public override void OpenSelf(GameObject target)
@@ -26,6 +40,10 @@ public class UIPnlBackGameMain : IUIModelControl
 		base.OpenSelf(target);
 		Button bt = m_ControlTarget.gameObject.transform.Find("Button").gameObject.GetComponent<Button>();
 		bt.onClick.AddListener(GoBackGameMain);
+		if (m_IsSetPosition)
+		{
+			bt.gameObject.transform.localPosition = m_Position;
+		}
 	}
 
 	private void GoBackGameMain()

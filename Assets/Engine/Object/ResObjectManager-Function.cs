@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR && !TEST_AB
 using UnityEditor;
@@ -143,8 +144,16 @@ namespace Game.Engine
 			{
 				if (info.m_LoadType != ResObjectType.Lua)
 				{
-					UnityEngine.Object target = UnityEngine.Object.Instantiate(oj);
-					cb.HandleLoadCallBack(target);
+					if (info.m_LoadType == ResObjectType.Icon)
+					{
+						Sprite s = (oj as GameObject).gameObject.GetComponent<Image>().sprite;
+						cb.HandleLoadCallBack(s);
+					}
+					else
+					{
+						UnityEngine.Object target = UnityEngine.Object.Instantiate(oj);
+						cb.HandleLoadCallBack(target);
+					}
 				}
 				else
 				{

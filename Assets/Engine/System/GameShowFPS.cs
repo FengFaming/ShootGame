@@ -45,7 +45,7 @@ namespace Game.Engine
 			{
 				GUI.color = Color.red;
 				GUIStyle style = new GUIStyle();
-				style.fontSize = 55;
+				style.fontSize = 35;
 				style.normal.textColor = Color.red;
 
 				GUI.Label(new Rect(0, 0, 400, 400), "FPS:" + m_FPS.ToString("f2"), style);

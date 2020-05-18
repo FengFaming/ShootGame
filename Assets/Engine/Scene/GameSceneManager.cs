@@ -135,6 +135,7 @@ namespace Game.Engine
 			ChangePressValue(0.6f);
 
 			m_Current.InitScene();
+			yield return null;
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForFixedUpdate();
 

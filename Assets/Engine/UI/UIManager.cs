@@ -46,6 +46,15 @@ namespace Game.Engine
 	[XLua.LuaCallCSharp]
 	public class UIManager : SingletonMonoClass<UIManager>
 	{
+		/// <summary>
+		/// 协同程序详细
+		/// </summary>
+		internal class CoroutineFun
+		{
+			public IUIModelControl m_Control;
+			public Action m_Action;
+		}
+
 		internal class LoadUIModel : IResObjectCallBack
 		{
 			private IUIModelControl m_Control;
@@ -142,6 +151,16 @@ namespace Game.Engine
 		/// </summary>
 		private bool m_IsClear;
 
+		/// <summary>
+		/// 所有的需要协同程序执行的方法
+		/// </summary>
+		private List<CoroutineFun> m_AllCoroutineActions;
+
+		/// <summary>
+		/// 是否有协同程序运行
+		/// </summary>
+		private bool m_IsCoroutine;
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -169,6 +188,11 @@ namespace Game.Engine
 			m_NeedOpenUIs.Clear();
 			m_HasOpen = false;
 			m_IsClear = false;
+
+			m_AllCoroutineActions = new List<CoroutineFun>();
+			m_AllCoroutineActions.Clear();
+
+			m_IsCoroutine = false;
 		}
 
 		/// <summary>
@@ -204,6 +228,12 @@ namespace Game.Engine
 			OpenUIData data = new OpenUIData(name, layer, arms);
 			m_NeedOpenUIs.Add(data);
 			OpenUI();
+
+			if (!m_IsCoroutine)
+			{
+				StartCoroutine("UICoroutine");
+				m_IsCoroutine = true;
+			}
 		}
 
 		/// <summary>
@@ -323,6 +353,65 @@ namespace Game.Engine
 			}
 		}
 
+		/// <summary>
+		/// 添加一个协同程序
+		/// </summary>
+		/// <param name="ui"></param>
+		/// <param name="action"></param>
+		public void AddCoroutine(IUIModelControl ui, Action action)
+		{
+			CoroutineFun fun = new CoroutineFun();
+			fun.m_Control = ui;
+			fun.m_Action = action;
+			m_AllCoroutineActions.Add(fun);
+		}
+
+		/// <summary>
+		/// 移除协同程序
+		/// </summary>
+		/// <param name="ui"></param>
+		public void RemoveCoroutine(IUIModelControl ui)
+		{
+			List<CoroutineFun> funs = new List<CoroutineFun>();
+			funs.Clear();
+			for (int index = 0; index < m_AllCoroutineActions.Count; index++)
+			{
+				if (m_AllCoroutineActions[index].m_Control == ui)
+				{
+					funs.Add(m_AllCoroutineActions[index]);
+				}
+			}
+
+			for (int index = 0; index < funs.Count; index++)
+			{
+				RemoveCoroutine(funs[index]);
+			}
+		}
+
+		/// <summary>
+		/// 移除一个协同程序
+		/// </summary>
+		/// <param name="ui"></param>
+		/// <param name="action"></param>
+		public void RemoveCoroutine(IUIModelControl ui, Action action)
+		{
+			List<CoroutineFun> funs = new List<CoroutineFun>();
+			funs.Clear();
+			for (int index = 0; index < m_AllCoroutineActions.Count; index++)
+			{
+				if (m_AllCoroutineActions[index].m_Control == ui &&
+					m_AllCoroutineActions[index].m_Action == action)
+				{
+					funs.Add(m_AllCoroutineActions[index]);
+				}
+			}
+
+			for (int index = 0; index < funs.Count; index++)
+			{
+				RemoveCoroutine(funs[index]);
+			}
+		}
+
 		public void ClearAllUI()
 		{
 			///存在打开界面
@@ -335,6 +424,7 @@ namespace Game.Engine
 			m_ShowSequence.Clear();
 			m_NeedOpenUIs.Clear();
 			m_NeedUpdateUIs.Clear();
+			m_AllCoroutineActions.Clear();
 			foreach (KeyValuePair<UILayer, List<IUIModelControl>> uis in m_AllShowUIModels)
 			{
 				for (int index = 0; index < uis.Value.Count; index++)
@@ -651,6 +741,35 @@ namespace Game.Engine
 						break;
 					}
 				}
+			}
+		}
+		#endregion
+
+		#region 协同程序相关
+		/// <summary>
+		/// 移除
+		/// </summary>
+		/// <param name="fun"></param>
+		private void RemoveCoroutine(CoroutineFun fun)
+		{
+			m_AllCoroutineActions.Remove(fun);
+		}
+
+		private IEnumerator UICoroutine()
+		{
+			yield return null;
+			while (true)
+			{
+				while (m_AllCoroutineActions.Count > 0)
+				{
+					for (int index = 0; index < m_AllCoroutineActions.Count; index++)
+					{
+						m_AllCoroutineActions[index].m_Action();
+						yield return null;
+					}
+				}
+
+				yield return null;
 			}
 		}
 		#endregion

@@ -26,11 +26,13 @@ public class UIPnlGameMain : IUIModelControl
 		Button shoot = m_ControlTarget.gameObject.transform.Find("shoot").gameObject.GetComponent<Button>();
 		Button lua = m_ControlTarget.gameObject.transform.Find("lua").gameObject.GetComponent<Button>();
 		Button reloaing = m_ControlTarget.gameObject.transform.Find("reloading").gameObject.GetComponent<Button>();
+		Button puke = m_ControlTarget.gameObject.transform.Find("puke").gameObject.GetComponent<Button>();
 
 		animation.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(1); }));
 		shoot.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(2); }));
 		lua.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(3); }));
 		reloaing.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(4); }));
+		puke.onClick.AddListener(new UnityEngine.Events.UnityAction(() => { OnClickAnimation(5); }));
 	}
 
 	private void OnClickAnimation(int tage)
@@ -48,6 +50,9 @@ public class UIPnlGameMain : IUIModelControl
 				break;
 			case 4:
 				GameSceneManager.Instance.ChangeScene(new ReloadingScene("reloadingscene"));
+				break;
+			case 5:
+				GameSceneManager.Instance.ChangeScene(new PuKePaiScene("pukepaiscene"));
 				break;
 		}
 	}

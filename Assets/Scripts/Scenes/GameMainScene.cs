@@ -21,18 +21,5 @@ public class GameMainScene : IScene
 	{
 		base.LoadScene(action);
 		UIManager.Instance.OpenUI("UIPnlGameMain", UILayer.Pnl);
-		if (action != null)
-		{
-			action(100);
-		}
-	}
-
-	public override void DestroyScene(Action<float> action)
-	{
-		base.DestroyScene(action);
-		if (action != null)
-		{
-			action(100);
-		}
 	}
 }
